@@ -35,6 +35,7 @@ mod api {
         let pool = database::get_database_pool().await.unwrap();
 
         Router::new()
+            .route("/", get("hello world"))
             .nest("/entity", entity_routes().await)
             .with_state(pool)
     }
@@ -46,14 +47,34 @@ mod api {
     }
 
     async fn create_entity(State(pool): State<SqlitePool>) -> impl IntoResponse {
-        let id = entity_service::create_entity(&pool).await;
-        (StatusCode::CREATED, Json(id))
+        let entity = entity_service::create_entity(&pool).await;
+
+        let entity_dto = EntityDTO::from(entity);
+        (StatusCode::CREATED, Json(entity_dto))
     }
 
     async fn get_entity(Path(id): Path<u32>, State(pool): State<SqlitePool>) -> impl IntoResponse {
-        let entity = entity_service::get_entity(id, &pool).await;
+        let entity = entity_service::get_entity(id, &pool).await.unwrap();
+        let entity_dto = EntityDTO::from(entity);
+        (StatusCode::OK, Json(entity_dto))
+    }
 
-        (StatusCode::OK, Json(entity))
+    #[derive(serde::Serialize)]
+    pub struct EntityDTO {
+        id: u32,
+        name: String,
+        owner: String,
+    }
+
+    use crate::entity_service::Entity;
+    impl From<Entity> for EntityDTO {
+        fn from(entity: Entity) -> Self {
+            Self {
+                id: entity.id,
+                name: entity.name,
+                owner: entity.owner,
+            }
+        }
     }
 }
 
@@ -74,11 +95,10 @@ mod entity_service {
         Some(entity)
     }
 
-    #[derive(serde::Serialize, sqlx::FromRow)]
     pub struct Entity {
-        id: u32,
-        name: String,
-        owner: String,
+        pub id: u32,
+        pub name: String,
+        pub owner: String,
     }
 
     impl Entity {
@@ -94,21 +114,21 @@ mod entity_service {
 
 mod database {
     pub async fn get_database_pool() -> sqlx::Result<sqlx::SqlitePool> {
-        let pool = sqlx::SqlitePool::connect("sqlite::memory:").await?;
+        let url = ":memory:";
+        let pool = sqlx::SqlitePool::connect(url).await?;
+
         sqlx::migrate!().run(&pool).await?;
         Ok(pool)
     }
 
     pub mod entity_dao {
-
-        // create entity in the database using sqlx
         pub async fn create_entity(
             name: String,
             owner: String,
             pool: &sqlx::SqlitePool,
         ) -> sqlx::Result<EntityTable> {
             let entity: EntityTable =
-                sqlx::query_as("INSERT INTO entities (name, owner) VALUES ($1, $2) RETURNING id")
+                sqlx::query_as("insert into entity (name, owner) values ($1, $2) returning *")
                     .bind(name)
                     .bind(owner)
                     .fetch_one(pool)
@@ -118,7 +138,7 @@ mod database {
         }
 
         pub async fn get_entity(id: u32, pool: &sqlx::SqlitePool) -> sqlx::Result<EntityTable> {
-            let entity: EntityTable = sqlx::query_as("select * from entities where id = $1")
+            let entity: EntityTable = sqlx::query_as("select * from entity where id = $1")
                 .bind(id)
                 .fetch_one(pool)
                 .await?;
