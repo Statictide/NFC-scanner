@@ -46,8 +46,8 @@ mod api {
             .route("/:id", get(get_entity))
     }
 
-    async fn create_entity(State(pool): State<SqlitePool>) -> impl IntoResponse {
-        let entity = entity_service::create_entity(&pool).await;
+    async fn create_entity(State(pool): State<SqlitePool>, Json(create_entity): axum::extract::Json<CreateEntity>) -> impl IntoResponse {
+        let entity = entity_service::create_entity(create_entity.into(), &pool).await;
 
         let entity_dto = EntityDTO::from(entity);
         (StatusCode::CREATED, Json(entity_dto))
@@ -57,6 +57,22 @@ mod api {
         let entity = entity_service::get_entity(id, &pool).await.unwrap();
         let entity_dto = EntityDTO::from(entity);
         (StatusCode::OK, Json(entity_dto))
+    }
+
+    
+    #[derive(serde::Deserialize)]
+    pub struct CreateEntity {
+        name: String,
+        owner: String,
+    }
+
+    impl From<CreateEntity> for entity_service::CreateEntity {
+        fn from(create_entity: CreateEntity) -> Self {
+            Self {
+                name: create_entity.name,
+                owner: create_entity.owner,
+            }
+        }
     }
 
     #[derive(serde::Serialize)]
@@ -81,8 +97,8 @@ mod api {
 mod entity_service {
     use crate::database::entity_dao;
 
-    pub async fn create_entity(pool: &sqlx::SqlitePool) -> Entity {
-        let entity_table = entity_dao::create_entity("name".to_string(), "owner".to_string(), pool)
+    pub async fn create_entity(create_entity: CreateEntity, pool: &sqlx::SqlitePool) -> Entity {
+        let entity_table = entity_dao::create_entity(create_entity.name, create_entity.owner, pool)
             .await
             .unwrap();
 
@@ -93,6 +109,12 @@ mod entity_service {
         let entity_table = entity_dao::get_entity(id, pool).await.unwrap();
         let entity = Entity::from_entity_table(entity_table);
         Some(entity)
+    }
+
+    #[derive(serde::Deserialize)]
+    pub struct CreateEntity {
+        pub name: String,
+        pub owner: String,
     }
 
     pub struct Entity {
