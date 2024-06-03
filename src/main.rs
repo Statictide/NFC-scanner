@@ -1,16 +1,16 @@
 pub mod controllers;
-pub mod database;
-pub mod services;
+mod database;
+mod services;
 
-use axum::routing::get;
+use axum::{http::StatusCode, routing::get};
 use std::net::SocketAddr;
 
 #[tokio::main]
 async fn main() {
     let app = axum::Router::new()
         .route("/", get(hello_world))
-        .nest("/api", controllers::api::get_v1_api().await)
-        .nest("/api", controllers::api::get_v1_api().await);
+        .nest("/api/v1", controllers::api::get_v1_api().await)
+        .fallback((StatusCode::NOT_FOUND, "Not Found"));
 
     let addr = SocketAddr::from(([0, 0, 0, 0, 0, 0, 0, 0], 3000));
 
