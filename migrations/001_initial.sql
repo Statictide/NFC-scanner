@@ -1,31 +1,31 @@
-CREATE TABLE entity (
-    id INTEGER PRIMARY KEY,
-    tag_id TEXT not null,
-    name VARCHAR(255),
-    owner TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP not null,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP not null
+create table entity (
+    id integer primary key,
+    tag_id text unique not null,
+    name varchar(255),
+    owner text,
+    created_at timestamp default current_timestamp not null,
+    updated_at timestamp default current_timestamp not null
 );
 
-CREATE TRIGGER update_entity_updated_at
-AFTER UPDATE ON entity
-FOR EACH ROW
-BEGIN
-    UPDATE entity SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id;
-END;
+create trigger update_entity_updated_at
+after update on entity
+for each row
+begin
+    update entity set updated_at = current_timestamp where id = old.id;
+end;
 
 
 create table user (
-    id INTEGER PRIMARY KEY,
-    name TEXT not null,
-    username TEXT not null,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP not null,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP not null
+    id integer primary key,
+    name text not null,
+    username text not null,
+    created_at timestamp default current_timestamp not null,
+    updated_at timestamp default current_timestamp not null
 );
 
-CREATE TRIGGER update_user_updated_at
-AFTER UPDATE ON user
-FOR EACH ROW
-BEGIN
-    UPDATE user SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id;
-END;
+create trigger update_user_updated_at
+after update on user
+for each row
+begin
+    update user set updated_at = current_timestamp where id = old.id;
+end;

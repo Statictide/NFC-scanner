@@ -82,6 +82,7 @@ impl CreateEntityDTO {
 #[derive(serde::Serialize)]
 pub struct EntityDTO {
     id: u32,
+    tag_id: String,
     name: String,
     owner: String,
 }
@@ -90,6 +91,7 @@ impl EntityDTO {
     fn from_entity(entity: Entity) -> Self {
         Self {
             id: entity.id,
+            tag_id: entity.tag_id,
             name: entity.name,
             owner: entity.owner,
         }
