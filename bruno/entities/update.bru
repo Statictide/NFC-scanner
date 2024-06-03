@@ -1,0 +1,19 @@
+meta {
+  name: update
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{BASE_URL}}/api/v1/entities/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "tag_id": "BBBC",
+    "name": "My entity",
+    "owner": "Mark"
+  }
+}
