@@ -1,12 +1,13 @@
 use crate::services::entity_service::{self, CreateEntity, Entity};
 
 use axum::{
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
     routing::{get, post},
     Json, Router,
 };
+use serde::Deserialize;
 use sqlx::SqlitePool;
 
 pub fn get_entity_routes() -> Router<SqlitePool> {
@@ -36,13 +37,34 @@ async fn get_entity(Path(id): Path<u32>, State(pool): State<SqlitePool>) -> impl
     (StatusCode::OK, Json(entity_dto))
 }
 
-async fn get_entities(State(pool): State<SqlitePool>) -> impl IntoResponse {
+async fn get_entities(
+    Query(query): Query<TagIdQuery>,
+    State(pool): State<SqlitePool>,
+) -> impl IntoResponse {
+    if let Some(tag_id) = query.tag_id {
+        let entity_option = entity_service::get_entity_by_tag_id(tag_id, &pool)
+            .await
+            .unwrap();
+
+        let Some(entity) = entity_option else {
+            return (StatusCode::OK, Json(vec![]));
+        };
+
+        let entity_dto = EntityDTO::from_entity(entity);
+        return (StatusCode::OK, Json(vec![entity_dto]));
+    }
+
     let entities = entity_service::get_entities(&pool).await.unwrap();
     let entities_dto = entities
         .into_iter()
         .map(EntityDTO::from_entity)
         .collect::<Vec<_>>();
     (StatusCode::OK, Json(entities_dto))
+}
+
+#[derive(Deserialize)]
+struct TagIdQuery {
+    pub tag_id: Option<String>,
 }
 
 async fn update_entity(
@@ -62,7 +84,7 @@ async fn delete_entity(Path(id): Path<u32>, State(pool): State<SqlitePool>) -> i
     StatusCode::NO_CONTENT
 }
 
-#[derive(serde::Deserialize)]
+#[derive(Deserialize)]
 pub struct CreateEntityDTO {
     tag_id: String,
     name: String,

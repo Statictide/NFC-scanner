@@ -1,7 +1,7 @@
 pub async fn create_entity(
     tag_id: String,
-    name: String,
-    owner: String,
+    name: Option<String>,
+    owner: Option<String>,
     db: &sqlx::SqlitePool,
 ) -> sqlx::Result<EntityTable> {
     let entity: EntityTable =
@@ -57,6 +57,19 @@ pub async fn delete_entity(id: u32, db: &sqlx::SqlitePool) -> sqlx::Result<()> {
         .await?;
 
     Ok(())
+}
+
+pub(crate) async fn get_entity_by_tag_id(
+    tag_id: String,
+    db: &sqlx::SqlitePool,
+) -> sqlx::Result<Option<EntityTable>> {
+    let entity_option: Option<EntityTable> =
+        sqlx::query_as("select * from entity where tag_id = $1")
+            .bind(&tag_id)
+            .fetch_optional(db)
+            .await?;
+
+    Ok(entity_option)
 }
 
 #[derive(serde::Serialize, sqlx::FromRow)]

@@ -1,8 +1,8 @@
 create table entity (
     id integer primary key,
-    tag_id text unique not null,
+    tag_id varchar(255) unique not null,
     name varchar(255),
-    owner text,
+    owner varchar(255),
     created_at timestamp default current_timestamp not null,
     updated_at timestamp default current_timestamp not null
 );
