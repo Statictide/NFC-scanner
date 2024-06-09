@@ -1,0 +1,22 @@
+meta {
+  name: create user
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL}}/api/v1/users
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Mark",
+    "username": "static"
+  }
+}
+
+vars:post-response {
+  username: res.body.username
+}

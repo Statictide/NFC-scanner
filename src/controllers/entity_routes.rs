@@ -1,4 +1,7 @@
-use crate::services::entity_service::{self, CreateEntity, Entity};
+use crate::{
+    database::Pool,
+    services::entity_service::{self, CreateEntity, Entity},
+};
 
 use axum::{
     extract::{Path, Query, State},
@@ -8,9 +11,8 @@ use axum::{
     Json, Router,
 };
 use serde::Deserialize;
-use sqlx::SqlitePool;
 
-pub fn get_entity_routes() -> Router<SqlitePool> {
+pub fn get_entity_routes() -> Router<Pool> {
     Router::new()
         .route("/", post(create_entity).get(get_entities))
         .route(
@@ -20,7 +22,7 @@ pub fn get_entity_routes() -> Router<SqlitePool> {
 }
 
 async fn create_entity(
-    State(pool): State<SqlitePool>,
+    State(pool): State<Pool>,
     Json(create_entity): Json<CreateEntityDTO>,
 ) -> impl IntoResponse {
     let entity = entity_service::create_entity(create_entity.into_create_entity(), &pool)
@@ -31,7 +33,7 @@ async fn create_entity(
     (StatusCode::CREATED, Json(entity_dto))
 }
 
-async fn get_entity(Path(id): Path<u32>, State(pool): State<SqlitePool>) -> impl IntoResponse {
+async fn get_entity(Path(id): Path<u32>, State(pool): State<Pool>) -> impl IntoResponse {
     let entity = entity_service::get_entity(id, &pool).await.unwrap();
     let entity_dto = EntityDTO::from_entity(entity);
     (StatusCode::OK, Json(entity_dto))
@@ -39,7 +41,7 @@ async fn get_entity(Path(id): Path<u32>, State(pool): State<SqlitePool>) -> impl
 
 async fn get_entities(
     Query(query): Query<TagIdQuery>,
-    State(pool): State<SqlitePool>,
+    State(pool): State<Pool>,
 ) -> impl IntoResponse {
     if let Some(tag_id) = query.tag_id {
         let entity_option = entity_service::get_entity_by_tag_id(tag_id, &pool)
@@ -69,7 +71,7 @@ struct TagIdQuery {
 
 async fn update_entity(
     Path(id): Path<u32>,
-    State(pool): State<SqlitePool>,
+    State(pool): State<Pool>,
     Json(update_entity): Json<CreateEntityDTO>,
 ) -> impl IntoResponse {
     let entity = entity_service::update_entity(id, update_entity.into_create_entity(), &pool)
@@ -79,7 +81,7 @@ async fn update_entity(
     (StatusCode::OK, Json(entity_dto))
 }
 
-async fn delete_entity(Path(id): Path<u32>, State(pool): State<SqlitePool>) -> impl IntoResponse {
+async fn delete_entity(Path(id): Path<u32>, State(pool): State<Pool>) -> impl IntoResponse {
     entity_service::delete_entity(id, &pool).await.unwrap();
     StatusCode::NO_CONTENT
 }

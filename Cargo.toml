@@ -9,3 +9,5 @@ axum = "0.7.5"
 serde = { version = "1.0.203", features = ["serde_derive"] }
 sqlx = { version = "0.7.4", features = ["sqlite", "runtime-tokio"] }
 tokio = { version = "1.37.0", features = ["full"] }
+tracing = "0.1.40"
+uuid = { version = "1.8.0", features = ["v4"] }

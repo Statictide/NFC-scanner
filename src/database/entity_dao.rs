@@ -1,8 +1,10 @@
+use super::Pool;
+
 pub async fn create_entity(
     tag_id: String,
     name: Option<String>,
     owner: Option<String>,
-    db: &sqlx::SqlitePool,
+    db: &Pool,
 ) -> sqlx::Result<EntityTable> {
     let entity: EntityTable =
         sqlx::query_as("insert into entity (tag_id, name, owner) values ($1, $2, $3) returning *")
@@ -15,7 +17,7 @@ pub async fn create_entity(
     Ok(entity)
 }
 
-pub async fn get_entity(id: u32, db: &sqlx::SqlitePool) -> sqlx::Result<EntityTable> {
+pub async fn get_entity(id: u32, db: &Pool) -> sqlx::Result<EntityTable> {
     let entity_option: EntityTable = sqlx::query_as("select * from entity where id = $1")
         .bind(id)
         .fetch_one(db)
@@ -24,7 +26,7 @@ pub async fn get_entity(id: u32, db: &sqlx::SqlitePool) -> sqlx::Result<EntityTa
     Ok(entity_option)
 }
 
-pub async fn get_entities(db: &sqlx::SqlitePool) -> sqlx::Result<Vec<EntityTable>> {
+pub async fn get_entities(db: &Pool) -> sqlx::Result<Vec<EntityTable>> {
     let entities: Vec<EntityTable> = sqlx::query_as("select * from entity").fetch_all(db).await?;
 
     Ok(entities)
@@ -35,7 +37,7 @@ pub async fn update_entity(
     tag_id: String,
     name: String,
     owner: String,
-    db: &sqlx::SqlitePool,
+    db: &Pool,
 ) -> sqlx::Result<EntityTable> {
     let entity: EntityTable = sqlx::query_as(
         "update entity set tag_id = $1, name = $2, owner = $3 where id = $4 returning *",
@@ -50,7 +52,7 @@ pub async fn update_entity(
     Ok(entity)
 }
 
-pub async fn delete_entity(id: u32, db: &sqlx::SqlitePool) -> sqlx::Result<()> {
+pub async fn delete_entity(id: u32, db: &Pool) -> sqlx::Result<()> {
     sqlx::query("delete from entity where id = $1")
         .bind(id)
         .execute(db)
@@ -61,7 +63,7 @@ pub async fn delete_entity(id: u32, db: &sqlx::SqlitePool) -> sqlx::Result<()> {
 
 pub(crate) async fn get_entity_by_tag_id(
     tag_id: String,
-    db: &sqlx::SqlitePool,
+    db: &Pool,
 ) -> sqlx::Result<Option<EntityTable>> {
     let entity_option: Option<EntityTable> =
         sqlx::query_as("select * from entity where tag_id = $1")
