@@ -5,5 +5,9 @@
   "ignore": [
     "node_modules",
     ".git"
-  ]
+  ],
+  "presets": {
+    "requestType": "http",
+    "requestUrl": "{{BASE_URL}}/api/v1"
+  }
 }

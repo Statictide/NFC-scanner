@@ -9,3 +9,8 @@ get {
   body: none
   auth: none
 }
+
+vars:post-response {
+  tag_id: res.body[0].tag_id
+  entity_id: res.body[0].id
+}

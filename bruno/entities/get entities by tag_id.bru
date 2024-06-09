@@ -1,15 +1,15 @@
 meta {
   name: get entities by tag_id
   type: http
-  seq: 3
+  seq: 4
 }
 
 get {
-  url: {{BASE_URL}}/api/v1/entities?tag_id=049F3972FE4A80
+  url: {{BASE_URL}}/api/v1/entities?tag_id={{tag_id}}
   body: none
   auth: none
 }
 
 query {
-  tag_id: 049F3972FE4A80
+  tag_id: {{tag_id}}
 }
