@@ -1,5 +1,6 @@
 use crate::controllers::{auth_routes, entity_routes, user_routes};
 use crate::database::{self, Pool};
+use crate::services::user_service;
 
 use axum::routing::get;
 use axum::Router;
@@ -20,10 +21,12 @@ pub async fn get_v1_api() -> Router {
 async fn add_test_data(pool: &Pool) {
     use crate::services::entity_service;
 
+    let user = user_service::create_user("Mark".to_string(), "Static".to_string(), pool).await.unwrap();
+
     let entity = entity_service::CreateEntity {
         tag_id: "049F3972FE4A80".to_string(),
         name: "Desert Eagle".to_string(),
-        owner: "Mark".to_string(),
+        user_id: user.id,
     };
 
     entity_service::create_entity(entity, pool).await.unwrap();

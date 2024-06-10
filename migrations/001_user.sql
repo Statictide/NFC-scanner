@@ -1,10 +1,3 @@
-create table entity (
-    id integer primary key,
-    tag_id varchar(255) unique not null,
-    name varchar(255),
-    owner varchar(255)
-);
-
 create table user (
     id integer primary key,
     name text not null,

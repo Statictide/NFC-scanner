@@ -29,7 +29,7 @@ pub struct SessionTable {
     pub token: String,
 }
 
-pub(crate) async fn get_session_by_token(token: String, pool: &Pool) -> sqlx::Result<Option<SessionTable>> {
+pub async fn get_session_by_token(token: String, pool: &Pool) -> sqlx::Result<Option<SessionTable>> {
     let session: Option<SessionTable> = sqlx::query_as("select * from session where token = $1")
         .bind(token)
         .fetch_optional(pool)

@@ -3,14 +3,14 @@ use super::Pool;
 pub async fn create_entity(
     tag_id: String,
     name: Option<String>,
-    owner: Option<String>,
+    user_id: Option<u32>,
     db: &Pool,
 ) -> sqlx::Result<EntityTable> {
     let entity: EntityTable =
-        sqlx::query_as("insert into entity (tag_id, name, owner) values ($1, $2, $3) returning *")
-            .bind(tag_id)
+        sqlx::query_as("insert into entity (name, tag_id, user_id) values ($1, $2, $3) returning *")
             .bind(name)
-            .bind(owner)
+            .bind(tag_id)
+            .bind(user_id)
             .fetch_one(db)
             .await?;
 
@@ -36,15 +36,15 @@ pub async fn update_entity(
     id: u32,
     tag_id: String,
     name: String,
-    owner: String,
+    user_id: u32,
     db: &Pool,
 ) -> sqlx::Result<EntityTable> {
     let entity: EntityTable = sqlx::query_as(
-        "update entity set tag_id = $1, name = $2, owner = $3 where id = $4 returning *",
+        "update entity set name = $1, tag_id = $2, user_id = $3 where id = $4 returning *",
     )
-    .bind(tag_id)
     .bind(name)
-    .bind(owner)
+    .bind(tag_id)
+    .bind(user_id)
     .bind(id)
     .fetch_one(db)
     .await?;
@@ -77,7 +77,7 @@ pub(crate) async fn get_entity_by_tag_id(
 #[derive(serde::Serialize, sqlx::FromRow)]
 pub struct EntityTable {
     pub id: u32,
+    pub user_id: u32,
     pub tag_id: String,
     pub name: String,
-    pub owner: String,
 }

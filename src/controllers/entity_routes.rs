@@ -90,7 +90,7 @@ async fn delete_entity(Path(id): Path<u32>, State(pool): State<Pool>) -> impl In
 pub struct CreateEntityDTO {
     tag_id: String,
     name: String,
-    owner: String,
+    user_id: u32,
 }
 
 impl CreateEntityDTO {
@@ -98,7 +98,7 @@ impl CreateEntityDTO {
         CreateEntity {
             tag_id: self.tag_id,
             name: self.name,
-            owner: self.owner,
+            user_id: self.user_id,
         }
     }
 }
@@ -108,7 +108,7 @@ pub struct EntityDTO {
     id: u32,
     tag_id: String,
     name: String,
-    owner: String,
+    user_id: u32,
 }
 
 impl EntityDTO {
@@ -117,7 +117,7 @@ impl EntityDTO {
             id: entity.id,
             tag_id: entity.tag_id,
             name: entity.name,
-            owner: entity.owner,
+            user_id: entity.user_id,
         }
     }
 }

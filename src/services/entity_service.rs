@@ -2,7 +2,7 @@ use crate::database::{entity_dao, Pool};
 
 pub async fn create_entity(entity: CreateEntity, pool: &Pool) -> anyhow::Result<Entity> {
     let entity_table: entity_dao::EntityTable =
-        entity_dao::create_entity(entity.tag_id, Some(entity.name), Some(entity.owner), pool)
+        entity_dao::create_entity(entity.tag_id, Some(entity.name), Some(entity.user_id), pool)
             .await?;
 
     return Ok(Entity::from_entity_table(entity_table));
@@ -29,7 +29,7 @@ pub async fn update_entity(
     pool: &sqlx::Pool<sqlx::Sqlite>,
 ) -> anyhow::Result<Entity> {
     let entity_table =
-        entity_dao::update_entity(id, entity.tag_id, entity.name, entity.owner, pool).await?;
+        entity_dao::update_entity(id, entity.tag_id, entity.name, entity.user_id, pool).await?;
 
     return Ok(Entity::from_entity_table(entity_table));
 }
@@ -49,14 +49,14 @@ pub async fn get_entity_by_tag_id(tag_id: String, pool: &Pool) -> anyhow::Result
 pub struct CreateEntity {
     pub tag_id: String,
     pub name: String,
-    pub owner: String,
+    pub user_id: u32,
 }
 
 pub struct Entity {
     pub id: u32,
     pub tag_id: String,
     pub name: String,
-    pub owner: String,
+    pub user_id: u32,
 }
 
 impl Entity {
@@ -65,7 +65,7 @@ impl Entity {
             id: entity.id,
             tag_id: entity.tag_id,
             name: entity.name,
-            owner: entity.owner,
+            user_id: entity.user_id,
         }
     }
 }
