@@ -6,9 +6,10 @@ use axum::routing::get;
 use axum::Router;
 
 pub async fn get_v1_api() -> Router {
-    db::get_db().await; // Initialize database pool upfront
+    // Initialize database pool upfront
+    db::init_database_pool(db::DatabaseType::InMemory).await.expect("Failed to initialize database connection");
+    add_test_data().await;
 
-    //add_test_data().await;
     Router::new()
         .route("/", get("NFC scanner api v1"))
         .nest("/entities", entity_routes::get_entity_routes())
@@ -16,7 +17,7 @@ pub async fn get_v1_api() -> Router {
         .nest("/auth", auth_routes::get_auth_routes())
 }
 
-async fn _add_test_data() {
+async fn add_test_data() {
     use crate::services::entity_service;
 
     let user = user_service::create_user("Mark".to_string(), "Static".to_string())
