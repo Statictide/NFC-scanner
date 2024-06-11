@@ -3,11 +3,13 @@ use crate::services::entity_service::{self, CreateEntity, Entity};
 use axum::{
     extract::{Path, Query},
     http::StatusCode,
-    response::{IntoResponse, Response},
+    response::IntoResponse,
     routing::{get, post},
     Json, Router,
 };
 use serde::Deserialize;
+
+use crate::controllers::errors::AppResult;
 
 pub fn get_entity_routes() -> Router {
     Router::new()
@@ -18,40 +20,41 @@ pub fn get_entity_routes() -> Router {
         )
 }
 
-async fn create_entity(Json(create_entity): Json<CreateEntityDTO>) -> Result<Response, Response> {
-    let entity = entity_service::create_entity(create_entity.into_create_entity())
-        .await
-        .map_err(|err| (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()).into_response())?;
+async fn create_entity(Json(create_entity): Json<CreateEntityDTO>) -> AppResult<impl IntoResponse> {
+    let create_entity = create_entity.into_create_entity();
+
+    let entity = entity_service::create_entity(create_entity).await?;
 
     let entity_dto = EntityDTO::from_entity(entity);
-    let r = (StatusCode::CREATED, Json(entity_dto)).into_response();
-    Ok(r)
+    Ok((StatusCode::CREATED, Json(entity_dto)))
 }
 
-async fn get_entity(Path(id): Path<u32>) -> impl IntoResponse {
-    let entity = entity_service::get_entity(id).await.unwrap();
+async fn get_entity(Path(id): Path<u32>) -> AppResult<impl IntoResponse> {
+    let entity = entity_service::get_entity(id).await?;
     let entity_dto = EntityDTO::from_entity(entity);
-    (StatusCode::OK, Json(entity_dto))
+    Ok((StatusCode::OK, Json(entity_dto)))
 }
 
-async fn get_entities(Query(query): Query<TagIdQuery>) -> impl IntoResponse {
+async fn get_entities(Query(query): Query<TagIdQuery>) -> AppResult<impl IntoResponse> {
     if let Some(tag_id) = query.tag_id {
-        let entity_option = entity_service::get_entity_by_tag_id(tag_id).await.unwrap();
+        let entity_option = entity_service::get_entity_by_tag_id(tag_id).await?;
 
-        let Some(entity) = entity_option else {
-            return (StatusCode::OK, Json(vec![]));
+        let entities: Vec<EntityDTO> = if let Some(entity) = entity_option {
+            vec![EntityDTO::from_entity(entity)]
+        } else {
+            vec![]
         };
 
-        let entity_dto = EntityDTO::from_entity(entity);
-        return (StatusCode::OK, Json(vec![entity_dto]));
+        return Ok((StatusCode::OK, Json(entities)));
     }
 
-    let entities = entity_service::get_entities().await.unwrap();
+    let entities = entity_service::get_entities().await?;
     let entities_dto = entities
         .into_iter()
         .map(EntityDTO::from_entity)
         .collect::<Vec<_>>();
-    (StatusCode::OK, Json(entities_dto))
+
+    Ok((StatusCode::OK, Json(entities_dto)))
 }
 
 #[derive(Deserialize)]

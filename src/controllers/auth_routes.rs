@@ -20,11 +20,31 @@ async fn authenticate(Json(auth_user): axum::extract::Json<AuthDTO>) -> Response
         return (StatusCode::UNAUTHORIZED, "Unauthorized").into_response();
     };
 
-    let auth_response_dto: AuthResponseDTO = AuthResponseDTO {
+    let auth_response_dto = TokenResponse {
         token: session.token,
     };
 
     return (StatusCode::CREATED, Json(auth_response_dto)).into_response();
+}
+
+async fn _login_handler(// TypedHeader(Authorization(auth)): TypedHeader<Authorization<Basic>>,
+) -> impl IntoResponse {
+    // Extract the username and password
+    let username = "auth.username()";
+    let password = "auth.password()";
+
+    // Validate credentials (this is just an example, replace with your own logic)
+    if username == "user" && password == "password" {
+        // Generate a token (for simplicity, we'll use the username)
+        let token = username;
+        let response = TokenResponse {
+            token: token.to_string(),
+        };
+
+        (StatusCode::OK, Json(response)).into_response()
+    } else {
+        (StatusCode::UNAUTHORIZED, Json("Invalid credentials")).into_response()
+    }
 }
 
 #[derive(serde::Deserialize)]
@@ -33,6 +53,6 @@ struct AuthDTO {
 }
 
 #[derive(serde::Serialize)]
-struct AuthResponseDTO {
-    pub token: String,
+struct TokenResponse {
+    token: String,
 }
