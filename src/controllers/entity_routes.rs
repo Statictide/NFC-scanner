@@ -18,9 +18,7 @@ pub fn get_entity_routes() -> Router {
         )
 }
 
-async fn create_entity(
-    Json(create_entity): Json<CreateEntityDTO>,
-) -> impl IntoResponse {
+async fn create_entity(Json(create_entity): Json<CreateEntityDTO>) -> impl IntoResponse {
     let entity = entity_service::create_entity(create_entity.into_create_entity())
         .await
         .unwrap();
@@ -35,13 +33,9 @@ async fn get_entity(Path(id): Path<u32>) -> impl IntoResponse {
     (StatusCode::OK, Json(entity_dto))
 }
 
-async fn get_entities(
-    Query(query): Query<TagIdQuery>,
-) -> impl IntoResponse {
+async fn get_entities(Query(query): Query<TagIdQuery>) -> impl IntoResponse {
     if let Some(tag_id) = query.tag_id {
-        let entity_option = entity_service::get_entity_by_tag_id(tag_id)
-            .await
-            .unwrap();
+        let entity_option = entity_service::get_entity_by_tag_id(tag_id).await.unwrap();
 
         let Some(entity) = entity_option else {
             return (StatusCode::OK, Json(vec![]));

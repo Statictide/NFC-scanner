@@ -1,58 +1,50 @@
-use super::Pool;
+use super::db;
 
-pub async fn create_user(name: String, username: String, db: &Pool) -> sqlx::Result<UserTable> {
+pub async fn create_user(name: String, username: String) -> sqlx::Result<UserTable> {
     let user: UserTable =
         sqlx::query_as("insert into user (name, username) values ($1, $2) returning *")
             .bind(name)
             .bind(username)
-            .fetch_one(db)
+            .fetch_one(db::get_db().await)
             .await?;
 
     Ok(user)
 }
 
-pub async fn get_user(id: u32, db: &Pool) -> sqlx::Result<UserTable> {
+pub async fn get_user(id: u32) -> sqlx::Result<UserTable> {
     let user: UserTable = sqlx::query_as("select * from user where id = $1")
         .bind(id)
-        .fetch_one(db)
+        .fetch_one(db::get_db().await)
         .await?;
 
     Ok(user)
 }
 
-pub async fn try_get_user_by_username(
-    username: String,
-    db: &Pool,
-) -> sqlx::Result<Option<UserTable>> {
+pub async fn try_get_user_by_username(username: String) -> sqlx::Result<Option<UserTable>> {
     let user_option: Option<UserTable> = sqlx::query_as("select * from user where username = $1")
         .bind(username)
-        .fetch_optional(db)
+        .fetch_optional(db::get_db().await)
         .await?;
 
     Ok(user_option)
 }
 
-pub async fn update_user(
-    id: u32,
-    name: String,
-    username: String,
-    db: &Pool,
-) -> sqlx::Result<UserTable> {
+pub async fn update_user(id: u32, name: String, username: String) -> sqlx::Result<UserTable> {
     let user: UserTable =
         sqlx::query_as("update user set name = $1, username = $2 where id = $3 returning *")
             .bind(name)
             .bind(username)
             .bind(id)
-            .fetch_one(db)
+            .fetch_one(db::get_db().await)
             .await?;
 
     Ok(user)
 }
 
-pub async fn delete_user(id: u32, db: &Pool) -> sqlx::Result<()> {
+pub async fn delete_user(id: u32) -> sqlx::Result<()> {
     sqlx::query("delete from user where id = $1")
         .bind(id)
-        .execute(db)
+        .execute(db::get_db().await)
         .await?;
 
     Ok(())

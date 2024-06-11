@@ -7,7 +7,9 @@ use axum::Router;
 
 pub async fn get_v1_api() -> Router {
     // Initialize database pool upfront
-    db::init_database_pool(db::DatabaseType::InMemory).await.expect("Failed to initialize database connection");
+    db::init_database_pool(db::DatabaseType::InMemory)
+        .await
+        .expect("Failed to initialize database connection");
     add_test_data().await;
 
     Router::new()
@@ -32,4 +34,3 @@ async fn add_test_data() {
 
     entity_service::create_entity(entity).await.unwrap();
 }
-

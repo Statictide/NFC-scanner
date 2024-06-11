@@ -11,9 +11,7 @@ pub fn get_auth_routes() -> Router {
     Router::new().route("/", post(authenticate))
 }
 
-async fn authenticate(
-    Json(auth_user): axum::extract::Json<AuthDTO>,
-) -> Response {
+async fn authenticate(Json(auth_user): axum::extract::Json<AuthDTO>) -> Response {
     let session_result = auth_service::authenticate(auth_user.username).await;
     tracing::error!("Test");
 

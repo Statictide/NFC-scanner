@@ -6,9 +6,7 @@ pub fn get_user_routes() -> Router {
     Router::new().route("/", post(create_user))
 }
 
-async fn create_user(
-    Json(create_user): axum::extract::Json<CreateUserDTO>,
-) -> impl IntoResponse {
+async fn create_user(Json(create_user): axum::extract::Json<CreateUserDTO>) -> impl IntoResponse {
     let user = user_service::create_user(create_user.name, create_user.username)
         .await
         .unwrap();

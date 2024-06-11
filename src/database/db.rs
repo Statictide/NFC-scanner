@@ -1,7 +1,7 @@
-pub type Pool = sqlx::SqlitePool;
 use sqlx::pool::PoolOptions;
 use tokio::sync::OnceCell;
 
+pub type Pool = sqlx::SqlitePool;
 static POOL: OnceCell<Pool> = OnceCell::const_new();
 
 pub async fn get_db() -> &'static Pool {
@@ -17,13 +17,13 @@ pub enum DatabaseType {
 pub async fn init_database_pool(database_type: DatabaseType) -> Result<(), sqlx::Error> {
     match database_type {
         DatabaseType::InMemory => init_database_pool_in_memory().await,
-        DatabaseType::InFile => init_in_file().await,
+        DatabaseType::InFile => init_database_pool_in_file().await,
     }
 }
 
 async fn init_database_pool_in_memory() -> Result<(), sqlx::Error> {
     let database_url = "sqlite://:memory:";
-    let pool = PoolOptions::new()
+    let pool: Pool = PoolOptions::new()
         .max_connections(1)
         .idle_timeout(None)
         .max_lifetime(None)
@@ -33,10 +33,10 @@ async fn init_database_pool_in_memory() -> Result<(), sqlx::Error> {
     init(pool).await
 }
 
-async fn init_in_file() -> Result<(), sqlx::Error> {
+async fn init_database_pool_in_file() -> Result<(), sqlx::Error> {
     let database_url = "sqlite://database.db";
     let pool = Pool::connect(&database_url).await?;
-    
+
     init(pool).await
 }
 
