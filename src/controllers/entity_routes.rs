@@ -3,7 +3,7 @@ use crate::services::entity_service::{self, CreateEntity, Entity};
 use axum::{
     extract::{Path, Query},
     http::StatusCode,
-    response::IntoResponse,
+    response::{IntoResponse, Response},
     routing::{get, post},
     Json, Router,
 };
@@ -18,13 +18,14 @@ pub fn get_entity_routes() -> Router {
         )
 }
 
-async fn create_entity(Json(create_entity): Json<CreateEntityDTO>) -> impl IntoResponse {
+async fn create_entity(Json(create_entity): Json<CreateEntityDTO>) -> Result<Response, Response> {
     let entity = entity_service::create_entity(create_entity.into_create_entity())
         .await
-        .unwrap();
+        .map_err(|err| (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()).into_response())?;
 
     let entity_dto = EntityDTO::from_entity(entity);
-    (StatusCode::CREATED, Json(entity_dto))
+    let r = (StatusCode::CREATED, Json(entity_dto)).into_response();
+    Ok(r)
 }
 
 async fn get_entity(Path(id): Path<u32>) -> impl IntoResponse {
