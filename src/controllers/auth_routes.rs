@@ -1,22 +1,20 @@
 use axum::{
-    extract::State,
     http::StatusCode,
     response::{IntoResponse, Response},
     routing::post,
     Json, Router,
 };
 
-use crate::{database::Pool, services::auth_service};
+use crate::services::auth_service;
 
-pub fn get_auth_routes() -> Router<Pool> {
+pub fn get_auth_routes() -> Router {
     Router::new().route("/", post(authenticate))
 }
 
 async fn authenticate(
-    State(pool): State<Pool>,
     Json(auth_user): axum::extract::Json<AuthDTO>,
 ) -> Response {
-    let session_result = auth_service::authenticate(auth_user.username, &pool).await;
+    let session_result = auth_service::authenticate(auth_user.username).await;
     tracing::error!("Test");
 
     let Ok(session) = session_result else {

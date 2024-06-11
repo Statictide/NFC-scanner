@@ -1,27 +1,27 @@
 use crate::controllers::{auth_routes, entity_routes, user_routes};
-use crate::database::{self, Pool};
+use crate::database::db;
 use crate::services::user_service;
 
 use axum::routing::get;
 use axum::Router;
 
 pub async fn get_v1_api() -> Router {
-    let pool = database::get_database_pool().await.unwrap();
+    db::get_db().await; // Initialize database pool upfront
 
-    add_test_data(&pool).await;
-
+    add_test_data().await;
     Router::new()
         .route("/", get("NFC scanner api v1"))
         .nest("/entities", entity_routes::get_entity_routes())
         .nest("/users", user_routes::get_user_routes())
         .nest("/auth", auth_routes::get_auth_routes())
-        .with_state(pool)
 }
 
-async fn add_test_data(pool: &Pool) {
+async fn add_test_data() {
     use crate::services::entity_service;
 
-    let user = user_service::create_user("Mark".to_string(), "Static".to_string(), pool).await.unwrap();
+    let user = user_service::create_user("Mark".to_string(), "Static".to_string())
+        .await
+        .unwrap();
 
     let entity = entity_service::CreateEntity {
         tag_id: "049F3972FE4A80".to_string(),
@@ -29,5 +29,5 @@ async fn add_test_data(pool: &Pool) {
         user_id: user.id,
     };
 
-    entity_service::create_entity(entity, pool).await.unwrap();
+    entity_service::create_entity(entity).await.unwrap();
 }

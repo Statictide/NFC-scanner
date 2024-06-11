@@ -1,16 +1,15 @@
-use crate::{database::Pool, services::user_service};
+use crate::services::user_service;
 
-use axum::{extract::State, http::StatusCode, response::IntoResponse, routing::post, Json, Router};
+use axum::{http::StatusCode, response::IntoResponse, routing::post, Json, Router};
 
-pub fn get_user_routes() -> Router<Pool> {
+pub fn get_user_routes() -> Router {
     Router::new().route("/", post(create_user))
 }
 
 async fn create_user(
-    State(pool): State<Pool>,
     Json(create_user): axum::extract::Json<CreateUserDTO>,
 ) -> impl IntoResponse {
-    let user = user_service::create_user(create_user.name, create_user.username, &pool)
+    let user = user_service::create_user(create_user.name, create_user.username)
         .await
         .unwrap();
 

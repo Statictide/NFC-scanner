@@ -1,10 +1,7 @@
-use crate::{
-    database::Pool,
-    services::entity_service::{self, CreateEntity, Entity},
-};
+use crate::services::entity_service::{self, CreateEntity, Entity};
 
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Path, Query},
     http::StatusCode,
     response::IntoResponse,
     routing::{get, post},
@@ -12,7 +9,7 @@ use axum::{
 };
 use serde::Deserialize;
 
-pub fn get_entity_routes() -> Router<Pool> {
+pub fn get_entity_routes() -> Router {
     Router::new()
         .route("/", post(create_entity).get(get_entities))
         .route(
@@ -22,10 +19,9 @@ pub fn get_entity_routes() -> Router<Pool> {
 }
 
 async fn create_entity(
-    State(pool): State<Pool>,
     Json(create_entity): Json<CreateEntityDTO>,
 ) -> impl IntoResponse {
-    let entity = entity_service::create_entity(create_entity.into_create_entity(), &pool)
+    let entity = entity_service::create_entity(create_entity.into_create_entity())
         .await
         .unwrap();
 
@@ -33,18 +29,17 @@ async fn create_entity(
     (StatusCode::CREATED, Json(entity_dto))
 }
 
-async fn get_entity(Path(id): Path<u32>, State(pool): State<Pool>) -> impl IntoResponse {
-    let entity = entity_service::get_entity(id, &pool).await.unwrap();
+async fn get_entity(Path(id): Path<u32>) -> impl IntoResponse {
+    let entity = entity_service::get_entity(id).await.unwrap();
     let entity_dto = EntityDTO::from_entity(entity);
     (StatusCode::OK, Json(entity_dto))
 }
 
 async fn get_entities(
     Query(query): Query<TagIdQuery>,
-    State(pool): State<Pool>,
 ) -> impl IntoResponse {
     if let Some(tag_id) = query.tag_id {
-        let entity_option = entity_service::get_entity_by_tag_id(tag_id, &pool)
+        let entity_option = entity_service::get_entity_by_tag_id(tag_id)
             .await
             .unwrap();
 
@@ -56,7 +51,7 @@ async fn get_entities(
         return (StatusCode::OK, Json(vec![entity_dto]));
     }
 
-    let entities = entity_service::get_entities(&pool).await.unwrap();
+    let entities = entity_service::get_entities().await.unwrap();
     let entities_dto = entities
         .into_iter()
         .map(EntityDTO::from_entity)
@@ -71,18 +66,17 @@ struct TagIdQuery {
 
 async fn update_entity(
     Path(id): Path<u32>,
-    State(pool): State<Pool>,
     Json(update_entity): Json<CreateEntityDTO>,
 ) -> impl IntoResponse {
-    let entity = entity_service::update_entity(id, update_entity.into_create_entity(), &pool)
+    let entity = entity_service::update_entity(id, update_entity.into_create_entity())
         .await
         .unwrap();
     let entity_dto = EntityDTO::from_entity(entity);
     (StatusCode::OK, Json(entity_dto))
 }
 
-async fn delete_entity(Path(id): Path<u32>, State(pool): State<Pool>) -> impl IntoResponse {
-    entity_service::delete_entity(id, &pool).await.unwrap();
+async fn delete_entity(Path(id): Path<u32>) -> impl IntoResponse {
+    entity_service::delete_entity(id).await.unwrap();
     StatusCode::NO_CONTENT
 }
 
