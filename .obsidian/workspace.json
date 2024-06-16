@@ -1,0 +1,165 @@
+{
+  "main": {
+    "id": "0486172557b9dc7b",
+    "type": "split",
+    "children": [
+      {
+        "id": "85eae8ba5a1ec417",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "121db31dcc52b67c",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "readme.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "2f011d60dcce06f7",
+    "type": "split",
+    "children": [
+      {
+        "id": "cb3bb6cc9cb8adde",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "132e08dbb0dbb532",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "02d9d21a6ad5353f",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "e6ca36d5a7207df1",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "388c9eb191f98839",
+    "type": "split",
+    "children": [
+      {
+        "id": "d1a00d5bc8249ab6",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ff7fa754834d2a5d",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "readme.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "52b605577ab1f597",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "readme.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "66e87ca883e2688d",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "e5dec4f819a3f328",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "readme.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "active": "121db31dcc52b67c",
+  "lastOpenFiles": [
+    "target/debug/deps/nfc_scanner.exe",
+    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/i9x8kv05rlcejjd.o",
+    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/hw8apn3pnxcdscq.o",
+    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/hvcdeeqlvkemmct.o",
+    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/h99kc3wx2n6rxw7.o",
+    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/g0m0rxwhrltbqj2.o",
+    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/ft7dj6no3w64fe7.o",
+    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/f00b8h7qqk0nmzw.o",
+    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/efz4j84f5758tn0.o",
+    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/doju3ama1jdsf3.o",
+    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/dm4cqendp40r31a.o",
+    "readme.md",
+    "Welcome.md"
+  ]
+}

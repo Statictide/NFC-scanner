@@ -1,15 +1,8 @@
 
-create table collection (
-    id integer primary key,
-    name varchar(255),
-    tag_id varchar(255) unique not null,
-    user_id integer not null references user(id)
-);
-
 create table entity (
     id integer primary key,
-    name varchar(255),
-    tag_id varchar(255) unique not null,
     user_id integer not null references user(id),
-    collection_id integer null references collection(id)
+    tag_uid varchar(20) unique not null, -- Max 8 bytes?
+    name varchar(255) not null,
+    parrent_id integer null references entity(id)
 );

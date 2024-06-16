@@ -1,9 +1,4 @@
-use axum::{
-    http::StatusCode,
-    response::IntoResponse,
-    routing::post,
-    Json, Router,
-};
+use axum::{http::StatusCode, response::IntoResponse, routing::post, Json, Router};
 
 use crate::services::auth_service;
 
@@ -13,7 +8,9 @@ pub fn get_auth_routes() -> Router {
     Router::new().route("/", post(authenticate))
 }
 
-async fn authenticate(Json(auth_user): axum::extract::Json<AuthDTO>) ->  AppResult<impl IntoResponse> {
+async fn authenticate(
+    Json(auth_user): axum::extract::Json<AuthDTO>,
+) -> AppResult<impl IntoResponse> {
     let session_result = auth_service::authenticate(auth_user.username).await;
 
     let Ok(session) = session_result else {

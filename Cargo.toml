@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.86"
 axum = "0.7.5"
+dotenvy = "0.15.7"
 serde = { version = "1.0.203", features = ["serde_derive"] }
 sqlx = { version = "0.7.4", features = ["sqlite", "runtime-tokio"] }
 tokio = { version = "1.37.0", features = ["full"] }

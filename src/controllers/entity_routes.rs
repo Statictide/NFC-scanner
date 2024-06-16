@@ -1,4 +1,4 @@
-use crate::services::entity_service::{self, CreateEntity, Entity};
+use crate::services::entity_service;
 
 use axum::{
     extract::{Path, Query},
@@ -18,59 +18,59 @@ pub fn get_entity_routes() -> Router {
             "/:id",
             get(get_entity).put(update_entity).delete(delete_entity),
         )
+        .route("/by-tag", get(get_entity_by_tag))
 }
 
 async fn create_entity(Json(create_entity): Json<CreateEntityDTO>) -> AppResult<impl IntoResponse> {
-    let create_entity = create_entity.into_create_entity();
+    let entity = entity_service::create_entity(create_entity.into()).await?;
+    let entity_dto = EntityDTO::from(entity);
 
-    let entity = entity_service::create_entity(create_entity).await?;
-
-    let entity_dto = EntityDTO::from_entity(entity);
     Ok((StatusCode::CREATED, Json(entity_dto)))
 }
 
 async fn get_entity(Path(id): Path<u32>) -> AppResult<impl IntoResponse> {
     let entity = entity_service::get_entity(id).await?;
-    let entity_dto = EntityDTO::from_entity(entity);
-    Ok((StatusCode::OK, Json(entity_dto)))
-}
+    let entity_closure_dto = EntityClosureDTO::from(entity);
 
-async fn get_entities(Query(query): Query<TagIdQuery>) -> AppResult<impl IntoResponse> {
-    if let Some(tag_id) = query.tag_id {
-        let entity_option = entity_service::get_entity_by_tag_id(tag_id).await?;
-
-        let entities: Vec<EntityDTO> = if let Some(entity) = entity_option {
-            vec![EntityDTO::from_entity(entity)]
-        } else {
-            vec![]
-        };
-
-        return Ok((StatusCode::OK, Json(entities)));
-    }
-
-    let entities = entity_service::get_entities().await?;
-    let entities_dto = entities
-        .into_iter()
-        .map(EntityDTO::from_entity)
-        .collect::<Vec<_>>();
-
-    Ok((StatusCode::OK, Json(entities_dto)))
+    Ok((StatusCode::OK, Json(entity_closure_dto)))
 }
 
 #[derive(Deserialize)]
 struct TagIdQuery {
-    pub tag_id: Option<String>,
+    pub tag_serial_number: String,
+}
+
+async fn get_entity_by_tag(
+    Query(TagIdQuery { tag_serial_number }): Query<TagIdQuery>,
+) -> AppResult<impl IntoResponse> {
+    let entity = entity_service::get_entity_by_tag_id(tag_serial_number).await?;
+    let entity = EntityDTO::from(entity);
+
+    return Ok((StatusCode::OK, Json(entity)));
+}
+
+#[derive(Deserialize)]
+struct UserIdQuery {
+    pub user_id: u32,
+}
+
+async fn get_entities(
+    Query(UserIdQuery { user_id }): Query<UserIdQuery>,
+) -> AppResult<impl IntoResponse> {
+    let entities = entity_service::get_entities_by_user_id(user_id).await?;
+    let entities_dto: Vec<_> = entities.into_iter().map(EntityDTO::from).collect();
+
+    Ok((StatusCode::OK, Json(entities_dto)))
 }
 
 async fn update_entity(
     Path(id): Path<u32>,
     Json(update_entity): Json<CreateEntityDTO>,
 ) -> impl IntoResponse {
-    let entity = entity_service::update_entity(id, update_entity.into_create_entity())
+    entity_service::update_entity(id, update_entity.into())
         .await
         .unwrap();
-    let entity_dto = EntityDTO::from_entity(entity);
-    (StatusCode::OK, Json(entity_dto))
+    StatusCode::NO_CONTENT
 }
 
 async fn delete_entity(Path(id): Path<u32>) -> impl IntoResponse {
@@ -80,17 +80,19 @@ async fn delete_entity(Path(id): Path<u32>) -> impl IntoResponse {
 
 #[derive(Deserialize)]
 pub struct CreateEntityDTO {
-    tag_id: String,
-    name: String,
     user_id: u32,
+    tag_uid: String,
+    name: String,
+    parrent: Option<u32>,
 }
 
-impl CreateEntityDTO {
-    pub fn into_create_entity(self) -> CreateEntity {
-        CreateEntity {
-            tag_id: self.tag_id,
-            name: self.name,
+impl Into<entity_service::CreateEntity> for CreateEntityDTO {
+    fn into(self) -> entity_service::CreateEntity {
+        entity_service::CreateEntity {
             user_id: self.user_id,
+            tag_uid: self.tag_uid,
+            name: self.name,
+            parrent_id: self.parrent,
         }
     }
 }
@@ -98,18 +100,41 @@ impl CreateEntityDTO {
 #[derive(serde::Serialize)]
 pub struct EntityDTO {
     id: u32,
-    tag_id: String,
+    tag_serial_number: String,
     name: String,
-    user_id: u32,
+    parrent_id: Option<u32>,
 }
 
-impl EntityDTO {
-    fn from_entity(entity: Entity) -> Self {
+impl From<entity_service::Entity> for EntityDTO {
+    fn from(e: entity_service::Entity) -> Self {
         Self {
-            id: entity.id,
-            tag_id: entity.tag_id,
-            name: entity.name,
-            user_id: entity.user_id,
+            id: e.id,
+            tag_serial_number: e.tag_uid,
+            name: e.name,
+            parrent_id: e.parrent_id,
+        }
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct EntityClosureDTO {
+    id: u32,
+    user_id: u32,
+    tag_serial_number: String,
+    name: String,
+    parrent: Option<EntityDTO>,
+    children: Vec<EntityDTO>,
+}
+
+impl From<entity_service::EntityClosure> for EntityClosureDTO {
+    fn from(e: entity_service::EntityClosure) -> Self {
+        Self {
+            id: e.entity.id,
+            user_id: e.entity.user_id,
+            tag_serial_number: e.entity.tag_uid,
+            name: e.entity.name,
+            parrent: e.parrent.map(EntityDTO::from),
+            children: e.children.into_iter().map(EntityDTO::from).collect(),
         }
     }
 }

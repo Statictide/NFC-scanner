@@ -5,12 +5,16 @@ meta {
 }
 
 get {
-  url: {{BASE_URL}}/api/v1/entities
+  url: {{BASE_URL}}/api/v1/entities?user_id={{user_id}}
   body: none
   auth: inherit
 }
 
+query {
+  user_id: {{user_id}}
+}
+
 vars:post-response {
-  tag_id: res.body[0].tag_id
-  entity_id: res.body[0].id
+  ~entity_id: res.body[0].id
+  ~tag_uid: res.body[0].tag_uid
 }

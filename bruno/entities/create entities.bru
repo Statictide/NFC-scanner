@@ -12,13 +12,14 @@ post {
 
 body:json {
   {
-    "tag_id": "049F3972FE4A80",
+    "user_id": 1,
+    "tag_uid": "049F3972FE4A83",
     "name": "Desert Eagle",
-    "user_id": 1
+    "parrent": 2
   }
 }
 
 vars:post-response {
-  tag_id: res.body.tag_id
-  entity_id: res.body.id
+  ~tag_id: res.body.tag_id
+  ~entity_id: res.body.id
 }

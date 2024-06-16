@@ -5,7 +5,7 @@ pub type Pool = sqlx::SqlitePool;
 static POOL: OnceCell<Pool> = OnceCell::const_new();
 
 pub async fn get_db() -> &'static Pool {
-    POOL.get().expect("Pool is not initialized")
+    POOL.get().expect("Database pool is not initialized")
 }
 
 #[allow(dead_code)]
@@ -17,7 +17,7 @@ pub enum DatabaseType {
 pub async fn init_database_pool(database_type: DatabaseType) -> Result<(), sqlx::Error> {
     match database_type {
         DatabaseType::InMemory => init_database_pool_in_memory().await,
-        DatabaseType::InFile => init_database_pool_in_file().await,
+        DatabaseType::InFile => init_database_pool_in_file("database.db").await,
     }
 }
 
@@ -33,8 +33,8 @@ async fn init_database_pool_in_memory() -> Result<(), sqlx::Error> {
     init(pool).await
 }
 
-async fn init_database_pool_in_file() -> Result<(), sqlx::Error> {
-    let database_url = "sqlite://database.db";
+async fn init_database_pool_in_file(db_file_path: &str) -> Result<(), sqlx::Error> {
+    let database_url = format!("sqlite://{db_file_path}");
     let pool = Pool::connect(&database_url).await?;
 
     init(pool).await

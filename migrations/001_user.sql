@@ -8,5 +8,6 @@ create table user (
 create table session (
     id integer primary key,
     user_id integer not null references user(id) on delete cascade,
-    token text unique not null
+    token text unique not null,
+    expires_at timestamp not null default (datetime('now', '+1 hour')) -- TODO: Delete expired sessions
 );
