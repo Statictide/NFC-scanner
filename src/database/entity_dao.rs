@@ -78,7 +78,7 @@ pub async fn get_entity(id: u32) -> anyhow::Result<EntityClosure> {
     Ok(entity_closure)
 }
 
-pub async fn get_all_entities_by_user_id(user_id: u32) -> anyhow::Result<Vec<EntityTable>> {
+pub async fn get_entities_by_user_id(user_id: u32) -> anyhow::Result<Vec<EntityTable>> {
     let entities: Vec<EntityTable> = sqlx::query_as("select * from entity where user_id = $1")
         .bind(user_id)
         .fetch_all(db::get_db().await)
@@ -113,11 +113,13 @@ pub async fn delete_entity(id: u32) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub async fn get_entity_by_tag_uid(tag_uid: String) -> anyhow::Result<EntityTable> {
-    let entity: EntityTable = sqlx::query_as("select * from entity where tag_uid = $1")
+pub async fn get_entity_by_tag_uid(tag_uid: String) -> anyhow::Result<EntityClosure> {
+    let (entity_id,): (u32,) = sqlx::query_as("select id from entity where tag_uid = $1")
         .bind(&tag_uid)
         .fetch_one(db::get_db().await)
         .await?;
+
+    let entity = get_entity(entity_id).await?;
 
     Ok(entity)
 }

@@ -2,8 +2,7 @@ use crate::{database::session_dao, services::user_service};
 
 pub async fn authenticate(username: String) -> anyhow::Result<AuthenticatedUser> {
     let user = user_service::get_user_by_username(username)
-        .await?
-        .ok_or(anyhow::anyhow!("No user found with that username"))?;
+        .await?;
 
     let session_opt = session_dao::get_session(user.id).await?;
 

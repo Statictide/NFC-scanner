@@ -21,7 +21,7 @@ pub async fn get_entity(id: u32) -> anyhow::Result<EntityClosure> {
 }
 
 pub async fn get_entities_by_user_id(user_id: u32) -> anyhow::Result<Vec<Entity>> {
-    let entities_table = entity_dao::get_all_entities_by_user_id(user_id).await?;
+    let entities_table = entity_dao::get_entities_by_user_id(user_id).await?;
     let entities = entities_table.into_iter().map(Entity::from).collect();
     return Ok(entities);
 }
@@ -37,9 +37,9 @@ pub async fn delete_entity(id: u32) -> anyhow::Result<()> {
     return Ok(());
 }
 
-pub async fn get_entity_by_tag_id(tag_id: String) -> anyhow::Result<Entity> {
-    let entity_table = entity_dao::get_entity_by_tag_uid(tag_id).await?;
-    let entity = Entity::from(entity_table);
+pub async fn get_entity_by_tag_id(tag_uid: String) -> anyhow::Result<EntityClosure> {
+    let entity_table = entity_dao::get_entity_by_tag_uid(tag_uid).await?;
+    let entity = EntityClosure::from(entity_table);
     Ok(entity)
 }
 

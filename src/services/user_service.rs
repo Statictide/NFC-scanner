@@ -2,30 +2,30 @@ use crate::database::user_dao;
 
 pub async fn create_user(name: String, username: String) -> anyhow::Result<User> {
     let user_table = user_dao::create_user(name, username).await?;
-    return Ok(User::from_user_table(user_table));
-}
 
-pub async fn get_user_by_username(username: String) -> anyhow::Result<Option<User>> {
-    let user_table = user_dao::try_get_user_by_username(username).await?;
-    let user = user_table.map(User::from_user_table);
+    let user = User::from_user_table(user_table);
     return Ok(user);
 }
 
-#[allow(dead_code)]
-pub async fn get_user(id: u32) -> anyhow::Result<User> {
-    let user_table = user_dao::get_user(id).await?;
+pub async fn get_user_by_username(username: String) -> anyhow::Result<User> {
+    let user_table = user_dao::get_user_by_username(username).await?;
+    
+    let user = User::from_user_table(user_table);
+    return Ok(user);
+}
+
+pub async fn _get_user(id: u32) -> anyhow::Result<User> {
+    let user_table = user_dao::_get_user(id).await?;
     return Ok(User::from_user_table(user_table));
 }
 
-#[allow(dead_code)]
-pub async fn update_user(id: u32, name: String, username: String) -> anyhow::Result<User> {
-    let user_table = user_dao::update_user(id, name, username).await?;
+pub async fn _update_user(id: u32, name: String, username: String) -> anyhow::Result<User> {
+    let user_table = user_dao::_update_user(id, name, username).await?;
     return Ok(User::from_user_table(user_table));
 }
 
-#[allow(dead_code)]
-pub async fn delete_user(id: u32) -> anyhow::Result<()> {
-    user_dao::delete_user(id).await?;
+pub async fn _delete_user(id: u32) -> anyhow::Result<()> {
+    user_dao::_delete_user(id).await?;
     return Ok(());
 }
 

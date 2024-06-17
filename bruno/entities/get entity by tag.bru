@@ -1,0 +1,15 @@
+meta {
+  name: get entity by tag
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{BASE_URL}}/api/v1/entities/by-tag?tag_uid={{tag_uid}}
+  body: none
+  auth: inherit
+}
+
+query {
+  tag_uid: {{tag_uid}}
+}

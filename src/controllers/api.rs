@@ -17,7 +17,7 @@ pub async fn get_v1_api() -> Router {
         .route("/", get("NFC scanner api v1"))
         .nest("/entities", entity_routes::get_entity_routes())
         .nest("/users", user_routes::get_user_routes())
-        .nest("/auth", auth_routes::get_auth_routes())
+        .nest("/sessions", auth_routes::get_auth_routes())
 }
 
 async fn add_test_data() {

@@ -37,14 +37,14 @@ async fn get_entity(Path(id): Path<u32>) -> AppResult<impl IntoResponse> {
 
 #[derive(Deserialize)]
 struct TagIdQuery {
-    pub tag_serial_number: String,
+    pub tag_uid: String,
 }
 
 async fn get_entity_by_tag(
-    Query(TagIdQuery { tag_serial_number }): Query<TagIdQuery>,
+    Query(TagIdQuery { tag_uid: tag_serial_number }): Query<TagIdQuery>,
 ) -> AppResult<impl IntoResponse> {
     let entity = entity_service::get_entity_by_tag_id(tag_serial_number).await?;
-    let entity = EntityDTO::from(entity);
+    let entity = EntityClosureDTO::from(entity);
 
     return Ok((StatusCode::OK, Json(entity)));
 }
@@ -80,7 +80,6 @@ async fn delete_entity(Path(id): Path<u32>) -> impl IntoResponse {
 
 #[derive(Deserialize)]
 pub struct CreateEntityDTO {
-    user_id: u32,
     tag_uid: String,
     name: String,
     parrent: Option<u32>,
@@ -89,7 +88,7 @@ pub struct CreateEntityDTO {
 impl Into<entity_service::CreateEntity> for CreateEntityDTO {
     fn into(self) -> entity_service::CreateEntity {
         entity_service::CreateEntity {
-            user_id: self.user_id,
+            user_id: 1, // TODO: get user_id from request JWT
             tag_uid: self.tag_uid,
             name: self.name,
             parrent_id: self.parrent,
@@ -100,7 +99,7 @@ impl Into<entity_service::CreateEntity> for CreateEntityDTO {
 #[derive(serde::Serialize)]
 pub struct EntityDTO {
     id: u32,
-    tag_serial_number: String,
+    tag_uid: String,
     name: String,
     parrent_id: Option<u32>,
 }
@@ -109,7 +108,7 @@ impl From<entity_service::Entity> for EntityDTO {
     fn from(e: entity_service::Entity) -> Self {
         Self {
             id: e.id,
-            tag_serial_number: e.tag_uid,
+            tag_uid: e.tag_uid,
             name: e.name,
             parrent_id: e.parrent_id,
         }
@@ -118,10 +117,7 @@ impl From<entity_service::Entity> for EntityDTO {
 
 #[derive(serde::Serialize)]
 pub struct EntityClosureDTO {
-    id: u32,
-    user_id: u32,
-    tag_serial_number: String,
-    name: String,
+    entity: EntityDTO,
     parrent: Option<EntityDTO>,
     children: Vec<EntityDTO>,
 }
@@ -129,10 +125,7 @@ pub struct EntityClosureDTO {
 impl From<entity_service::EntityClosure> for EntityClosureDTO {
     fn from(e: entity_service::EntityClosure) -> Self {
         Self {
-            id: e.entity.id,
-            user_id: e.entity.user_id,
-            tag_serial_number: e.entity.tag_uid,
-            name: e.entity.name,
+            entity: e.entity.into(),
             parrent: e.parrent.map(EntityDTO::from),
             children: e.children.into_iter().map(EntityDTO::from).collect(),
         }

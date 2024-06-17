@@ -11,7 +11,7 @@ pub async fn create_user(name: String, username: String) -> sqlx::Result<UserTab
     Ok(user)
 }
 
-pub async fn get_user(id: u32) -> sqlx::Result<UserTable> {
+pub async fn _get_user(id: u32) -> sqlx::Result<UserTable> {
     let user: UserTable = sqlx::query_as("select * from user where id = $1")
         .bind(id)
         .fetch_one(db::get_db().await)
@@ -20,16 +20,16 @@ pub async fn get_user(id: u32) -> sqlx::Result<UserTable> {
     Ok(user)
 }
 
-pub async fn try_get_user_by_username(username: String) -> sqlx::Result<Option<UserTable>> {
-    let user_option: Option<UserTable> = sqlx::query_as("select * from user where username = $1")
+pub async fn get_user_by_username(username: String) -> sqlx::Result<UserTable> {
+    let user_option: UserTable = sqlx::query_as("select * from user where username = $1")
         .bind(username)
-        .fetch_optional(db::get_db().await)
+        .fetch_one(db::get_db().await)
         .await?;
 
     Ok(user_option)
 }
 
-pub async fn update_user(id: u32, name: String, username: String) -> sqlx::Result<UserTable> {
+pub async fn _update_user(id: u32, name: String, username: String) -> sqlx::Result<UserTable> {
     let user: UserTable =
         sqlx::query_as("update user set name = $1, username = $2 where id = $3 returning *")
             .bind(name)
@@ -41,7 +41,7 @@ pub async fn update_user(id: u32, name: String, username: String) -> sqlx::Resul
     Ok(user)
 }
 
-pub async fn delete_user(id: u32) -> sqlx::Result<()> {
+pub async fn _delete_user(id: u32) -> sqlx::Result<()> {
     sqlx::query("delete from user where id = $1")
         .bind(id)
         .execute(db::get_db().await)
