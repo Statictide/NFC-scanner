@@ -3,8 +3,8 @@ mod database;
 mod services;
 
 use axum::{http::StatusCode, routing::get};
-use tower_http::trace::TraceLayer;
 use std::net::{Ipv4Addr, SocketAddr};
+use tower_http::trace::TraceLayer;
 
 #[tokio::main]
 async fn main() {
@@ -13,12 +13,9 @@ async fn main() {
 
     let app = axum::Router::new()
         .route("/", get("NFC Scanner"))
-        .route(
-            "/api",
-            get("NFC Scanner API. Go to /api/v1 for the newest API."),
-        )
+        .route("/api", get("NFC Scanner API. Go to /api/v1 for the newest API."))
         .nest("/api/v1", controllers::api::get_v1_api().await)
-        .fallback((StatusCode::NOT_FOUND, "Not Found"))
+        .fallback((StatusCode::NOT_FOUND, "Route not Found"))
         .layer(TraceLayer::new_for_http());
 
     // Cannot make IPv6 work because it infefers with android dual stack :(

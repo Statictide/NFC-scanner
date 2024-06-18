@@ -9,7 +9,7 @@ pub async fn create_user(name: String, username: String) -> anyhow::Result<User>
 
 pub async fn get_user_by_username(username: String) -> anyhow::Result<User> {
     let user_table = user_dao::get_user_by_username(username).await?;
-    
+
     let user = User::from_user_table(user_table);
     return Ok(user);
 }

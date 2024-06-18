@@ -4,7 +4,7 @@ use tokio::sync::OnceCell;
 pub type Pool = sqlx::SqlitePool;
 static POOL: OnceCell<Pool> = OnceCell::const_new();
 
-pub async fn get_db() -> &'static Pool {
+pub async fn pool() -> &'static Pool {
     POOL.get().expect("Database pool is not initialized")
 }
 

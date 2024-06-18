@@ -1,11 +1,17 @@
 meta {
-  name: get entity
+  name: entity
   type: http
-  seq: 3
+  seq: 5
 }
 
-get {
+patch {
   url: {{BASE_URL}}/api/v1/entities/{{entity_id}}
-  body: none
+  body: json
   auth: inherit
+}
+
+body:json {
+  {
+    "parent_id": 1
+  }
 }
