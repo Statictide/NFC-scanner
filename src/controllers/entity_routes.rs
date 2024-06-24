@@ -56,8 +56,9 @@ struct UserIdQuery {
 }
 
 async fn get_entities(Query(UserIdQuery { user_id: _user_id }): Query<UserIdQuery>) -> AppResult<impl IntoResponse> {
-    let entities = entity_service::get_entities_by_user_id(1).await?; // Fixme: user_id
-    let entities_dto: Vec<_> = entities.into_iter().map(EntityDTO::from).collect();
+    let user_id = 1; tracing::warn!("Using fixed user_id = {user_id}");
+    let entities = entity_service::get_entities_by_user_id(user_id).await?; 
+    let entities_dto = entities.into_iter().map(EntityDTO::from).collect::<Vec<_>>();
 
     return Ok((StatusCode::OK, Json(entities_dto)));
 }
@@ -105,8 +106,9 @@ pub struct CreateEntityDTO {
 
 impl Into<entity_service::CreateEntity> for CreateEntityDTO {
     fn into(self) -> entity_service::CreateEntity {
+        let user_id = 1; tracing::warn!("Using fixed user_id = {user_id}");
         entity_service::CreateEntity {
-            user_id: 1, // Fixme: user_id
+            user_id,
             tag_uid: self.tag_uid,
             name: self.name,
             parent_id: self.parent_id,
@@ -117,7 +119,6 @@ impl Into<entity_service::CreateEntity> for CreateEntityDTO {
 #[derive(serde::Serialize)]
 pub struct EntityDTO {
     id: u32,
-    // user_id: u32, Fixme: user_id
     tag_uid: String,
     name: String,
     parent_id: Option<u32>,
