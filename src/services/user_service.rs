@@ -1,4 +1,4 @@
-use crate::database::user_dao;
+use crate::database::dao::user_dao;
 
 pub async fn create_user(name: String, username: String) -> anyhow::Result<User> {
     let user_table = user_dao::create_user(name, username).await?;

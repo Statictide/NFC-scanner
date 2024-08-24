@@ -1,4 +1,4 @@
-use super::db;
+use crate::database::db;
 
 pub async fn create_user(name: String, username: String) -> sqlx::Result<UserTable> {
     let user: UserTable = sqlx::query_as("insert into user (name, username) values ($1, $2) returning *")

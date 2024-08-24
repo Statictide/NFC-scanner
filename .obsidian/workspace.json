@@ -18,8 +18,31 @@
                 "source": false
               }
             }
+          },
+          {
+            "id": "2ac0b7ac80d799e0",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.6.3"
+              }
+            }
+          },
+          {
+            "id": "5a11826ef9cd5540",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "readme.md",
+                "mode": "source",
+                "source": false
+              }
+            }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -146,20 +169,21 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "121db31dcc52b67c",
+  "active": "5a11826ef9cd5540",
   "lastOpenFiles": [
+    "target/debug/deps/nfc_scanner.pdb",
     "target/debug/deps/nfc_scanner.exe",
-    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/i9x8kv05rlcejjd.o",
-    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/hw8apn3pnxcdscq.o",
-    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/hvcdeeqlvkemmct.o",
-    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/h99kc3wx2n6rxw7.o",
-    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/g0m0rxwhrltbqj2.o",
-    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/ft7dj6no3w64fe7.o",
-    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/f00b8h7qqk0nmzw.o",
-    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/efz4j84f5758tn0.o",
-    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/doju3ama1jdsf3.o",
-    "target/debug/incremental/nfc_scanner-mbydy9sbgeo5/s-gx2a8kvxz8-1lwn9au-working/dm4cqendp40r31a.o",
+    "target/debug/incremental/nfc_scanner-3jls05rciwdt/s-gza594kyq9-1crqm3q-bafalz489d36kcla3jt3930gt/yvnws2qcggqu7qj.o",
+    "target/debug/incremental/nfc_scanner-3jls05rciwdt/s-gza594kyq9-1crqm3q-bafalz489d36kcla3jt3930gt/y3fny5qmqtmx7cq.o",
+    "target/debug/incremental/nfc_scanner-3jls05rciwdt/s-gza594kyq9-1crqm3q-bafalz489d36kcla3jt3930gt/xjsuxyq2zi5auut.o",
+    "target/debug/incremental/nfc_scanner-3jls05rciwdt/s-gza594kyq9-1crqm3q-bafalz489d36kcla3jt3930gt/x6n6aa0ccfvki2f.o",
+    "target/debug/incremental/nfc_scanner-3jls05rciwdt/s-gza594kyq9-1crqm3q-bafalz489d36kcla3jt3930gt/work-products.bin",
+    "target/debug/incremental/nfc_scanner-3jls05rciwdt/s-gza594kyq9-1crqm3q-bafalz489d36kcla3jt3930gt/wh5646rp3dt5a03.o",
+    "target/debug/incremental/nfc_scanner-3jls05rciwdt/s-gza594kyq9-1crqm3q-bafalz489d36kcla3jt3930gt/v85js0nv991ky9m.o",
+    "target/debug/incremental/nfc_scanner-3jls05rciwdt/s-gza594kyq9-1crqm3q-bafalz489d36kcla3jt3930gt/u8pjx2on73l5ba0.o",
+    "target/debug/incremental/nfc_scanner-3jls05rciwdt/s-gza594kyq9-1crqm3q-bafalz489d36kcla3jt3930gt/u4y3qgktb2iv3nf.o",
     "readme.md",
+    "New pc.md",
     "Welcome.md"
   ]
 }

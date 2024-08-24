@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::{
+use crate::database::{
     db,
     errors::{DatabaseError, DatabaseResult},
 };

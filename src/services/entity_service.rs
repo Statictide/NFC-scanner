@@ -1,4 +1,4 @@
-use crate::database::entity_dao::{self, EntityTable};
+use crate::database::dao::entity_dao::{self, EntityTable};
 
 use super::errors::ServiceResult;
 
