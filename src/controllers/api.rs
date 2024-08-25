@@ -5,7 +5,7 @@ use crate::services::user_service;
 use axum::routing::get;
 use axum::Router;
 
-pub async fn get_v1_api() -> Router {
+pub async fn get_v0_api() -> Router {
     // Initialize database pool upfront
     db::init_database_pool(db::DatabaseType::InMemory)
         .await

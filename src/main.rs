@@ -14,7 +14,7 @@ async fn main() {
     let app = axum::Router::new()
         .route("/", get("NFC Scanner"))
         .route("/api", get("NFC Scanner API. Go to /api/v1 for the newest API."))
-        .nest("/api/v1", controllers::api::get_v1_api().await)
+        .nest("/api/v0", controllers::api::get_v0_api().await)
         .fallback((StatusCode::NOT_FOUND, "Route not Found"))
         .layer(TraceLayer::new_for_http());
 
