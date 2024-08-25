@@ -1,18 +1,14 @@
 use crate::controllers::{auth_routes, entity_routes, user_routes};
-use crate::database::db;
 use crate::services::user_service;
 
 use axum::routing::get;
 use axum::Router;
 
 pub async fn get_v0_api() -> Router {
-    // Initialize database pool upfront
-    db::init_database_pool(db::DatabaseType::InMemory)
-        .await
-        .expect("Failed to initialize database connection");
-
+    println!("Adding test data");
     add_test_data().await;
 
+    println!("Creating routes");
     Router::new()
         .route("/", get("NFC scanner api v1"))
         .nest("/entities", entity_routes::get_entity_routes())

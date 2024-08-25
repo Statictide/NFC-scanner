@@ -5,7 +5,7 @@ meta {
 }
 
 patch {
-  url: {{BASE_URL}}/api/v1/entities/{{entity_id}}
+  url: {{BASE_URL}}{{API_PATH}}/entities/{{entity_id}}
   body: json
   auth: inherit
 }

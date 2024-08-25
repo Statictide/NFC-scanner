@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{BASE_URL}}/api/v1/entities/by-tag?tag_uid={{tag_uid}}
+  url: {{BASE_URL}}{{API_PATH}}/entities/by-tag?tag_uid={{tag_uid}}
   body: none
   auth: inherit
 }
