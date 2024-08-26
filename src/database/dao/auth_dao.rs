@@ -1,22 +1,20 @@
 use crate::database::db;
 
 pub async fn _get_session(user_id: u32) -> sqlx::Result<Option<SessionTable>> {
-    let session_option: Option<SessionTable> =
-        sqlx::query_as("select * from session where user_id = $1")
-            .bind(user_id)
-            .fetch_optional(db::pool().await)
-            .await?;
+    let session_option: Option<SessionTable> = sqlx::query_as("select * from session where user_id = $1")
+        .bind(user_id)
+        .fetch_optional(db::pool().await)
+        .await?;
 
     Ok(session_option)
 }
 
 pub async fn _create_session(user_id: u32, token: String) -> sqlx::Result<SessionTable> {
-    let session: SessionTable =
-        sqlx::query_as("insert into session (user_id, token) values ($1, $2) returning *")
-            .bind(user_id)
-            .bind(token)
-            .fetch_one(db::pool().await)
-            .await?;
+    let session: SessionTable = sqlx::query_as("insert into session (user_id, token) values ($1, $2) returning *")
+        .bind(user_id)
+        .bind(token)
+        .fetch_one(db::pool().await)
+        .await?;
 
     Ok(session)
 }

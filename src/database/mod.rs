@@ -1,3 +1,3 @@
-pub mod db;
 pub mod dao;
+pub mod db;
 pub mod errors;

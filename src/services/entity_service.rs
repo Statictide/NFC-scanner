@@ -5,8 +5,7 @@ use crate::database::dao::entity_dao::{self, EntityTable};
 use super::errors::ServiceResult;
 
 pub async fn create_entity(entity: CreateEntity) -> anyhow::Result<Entity> {
-    let entity_table =
-        entity_dao::create_entity(entity.tag_uid, entity.name, entity.user_id, entity.parent_id).await?;
+    let entity_table = entity_dao::create_entity(entity.tag_uid, entity.name, entity.user_id, entity.parent_id).await?;
 
     let entity = Entity::from(entity_table);
 
@@ -150,7 +149,6 @@ impl From<entity_dao::EnrichedEntity> for EnrichedEntity {
         }
     }
 }
-
 
 #[derive(serde::Serialize, Clone, Debug)]
 pub struct EntityClosure {
