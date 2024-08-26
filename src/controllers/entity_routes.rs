@@ -33,7 +33,7 @@ async fn create_entity(Json(create_entity): Json<CreateEntityDTO>) -> AppResult<
 
 async fn get_entity(Path(id): Path<u32>) -> AppResult<impl IntoResponse> {
     let entity = entity_service::get_entity(id).await?;
-    let entity_closure_dto = EntityClosureDTO::from(entity);
+    let entity_closure_dto = RichEntityDTO::from(entity);
 
     return Ok((StatusCode::OK, Json(entity_closure_dto)));
 }
@@ -45,7 +45,7 @@ struct TagIdQuery {
 
 async fn get_entity_by_tag(Query(TagIdQuery { tag_uid }): Query<TagIdQuery>) -> AppResult<impl IntoResponse> {
     let entity = entity_service::get_entity_by_tag_id(tag_uid).await?;
-    let entity = EntityClosureDTO::from(entity);
+    let entity = RichEntityDTO::from(entity);
 
     return Ok((StatusCode::OK, Json(entity)));
 }
@@ -58,7 +58,7 @@ struct UserIdQuery {
 async fn get_entities(Query(UserIdQuery { user_id: _user_id }): Query<UserIdQuery>) -> AppResult<impl IntoResponse> {
     let user_id = 1; tracing::warn!("Using fixed user_id = {user_id}");
     let entities = entity_service::get_entities_by_user_id(user_id).await?; 
-    let entities_dto = entities.into_iter().map(EntityDTO::from).collect::<Vec<_>>();
+    let entities_dto: Vec<EntityClosureDTO> = entities.into_iter().map(EntityClosureDTO::from).collect::<Vec<_>>();
 
     return Ok((StatusCode::OK, Json(entities_dto)));
 }
@@ -87,7 +87,7 @@ async fn assign_new_parent_id_and_get_parent_entity(
 
     entity_service::update_entity_partial(id, parent_id).await?;
     let parent_entity = entity_service::get_entity(parent_id).await?;
-    let parent_entity = EntityClosureDTO::from(parent_entity);
+    let parent_entity = RichEntityDTO::from(parent_entity);
 
     return Ok((StatusCode::OK, Json(parent_entity)));
 }
@@ -136,18 +136,39 @@ impl From<entity_service::Entity> for EntityDTO {
 }
 
 #[derive(serde::Serialize)]
-pub struct EntityClosureDTO {
+pub struct RichEntityDTO {
     entity: EntityDTO,
     parent: Option<EntityDTO>,
     children: Vec<EntityDTO>,
 }
 
-impl From<entity_service::EntityClosure> for EntityClosureDTO {
-    fn from(e: entity_service::EntityClosure) -> Self {
+impl From<entity_service::EnrichedEntity> for RichEntityDTO {
+    fn from(e: entity_service::EnrichedEntity) -> Self {
         Self {
             entity: e.entity.into(),
             parent: e.parent.map(EntityDTO::from),
             children: e.children.into_iter().map(EntityDTO::from).collect(),
+        }
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct EntityClosureDTO {
+    pub id: u32,
+    pub user_id: u32,
+    pub tag_uid: String,
+    pub name: String,
+    pub children: Vec<EntityClosureDTO>,
+}
+
+impl From<entity_service::EntityClosure> for EntityClosureDTO {
+    fn from(e: entity_service::EntityClosure) -> Self {
+        Self {
+            id: e.id,
+            user_id: e.user_id,
+            tag_uid: e.tag_uid,
+            name: e.name,
+            children: e.children.into_iter().map(EntityClosureDTO::from).collect(),
         }
     }
 }

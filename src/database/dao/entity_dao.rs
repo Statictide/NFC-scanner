@@ -23,7 +23,7 @@ pub async fn create_entity(
     Ok(entity)
 }
 
-pub async fn get_entity(id: u32) -> DatabaseResult<EntityClosure> {
+pub async fn get_entity(id: u32) -> DatabaseResult<EnrichedEntity> {
     // Get the entity with the given id, the parent of the entity, and all children of the entity
     let entities: Vec<EntityTable> = sqlx::query_as(
         r#"
@@ -69,7 +69,7 @@ pub async fn get_entity(id: u32) -> DatabaseResult<EntityClosure> {
         })
         .collect::<Vec<_>>();
 
-    let entity_closure = EntityClosure {
+    let entity_closure = EnrichedEntity {
         entity: main_entity,
         parent: parent_entity,
         children: child_entities,
@@ -118,7 +118,7 @@ pub async fn delete_entity(id: u32) -> DatabaseResult<()> {
     Ok(())
 }
 
-pub async fn get_entity_by_tag_uid(tag_uid: String) -> DatabaseResult<EntityClosure> {
+pub async fn get_entity_by_tag_uid(tag_uid: String) -> DatabaseResult<EnrichedEntity> {
     let (entity_id,): (u32,) = sqlx::query_as("select id from entity where tag_uid = $1")
         .bind(&tag_uid)
         .fetch_one(db::pool().await)
@@ -139,7 +139,7 @@ pub struct EntityTable {
 }
 
 #[derive(Debug)]
-pub struct EntityClosure {
+pub struct EnrichedEntity {
     pub entity: EntityTable,
     pub parent: Option<EntityTable>,
     pub children: Vec<EntityTable>,
