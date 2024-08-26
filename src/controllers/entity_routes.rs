@@ -13,7 +13,7 @@ use crate::controllers::errors::AppResult;
 
 pub fn get_entity_routes() -> Router {
     Router::new()
-        .route("/", post(create_entity).get(get_entities))
+        .route("/", post(create_entity).get(get_entities_by_user_id))
         .route(
             "/:id",
             get(get_entity)

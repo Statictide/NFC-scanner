@@ -10,7 +10,7 @@ pub async fn get_v0_api() -> Router {
 
     println!("Creating routes");
     Router::new()
-        .route("/", get("NFC scanner api v1"))
+        .route("/", get("NFC scanner api"))
         .nest("/entities", entity_routes::get_entity_routes())
         .nest("/users", user_routes::get_user_routes())
         .nest("/sessions", auth_routes::get_auth_routes())
