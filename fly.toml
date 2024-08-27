@@ -19,3 +19,7 @@ primary_region = 'ams'
 [[vm]]
   size = 'shared-cpu-1x'
   memory = "256mb"
+
+[mounts]
+  source = "app_data"
+  destination = "/data"
