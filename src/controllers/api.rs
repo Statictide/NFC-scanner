@@ -1,4 +1,4 @@
-use crate::controllers::{auth_routes, entity_routes, user_routes};
+use crate::controllers::{entity_routes, user_routes};
 use crate::services::user_service;
 
 use axum::routing::get;
@@ -13,7 +13,6 @@ pub async fn get_v0_api() -> Router {
         .route("/", get("NFC scanner api"))
         .nest("/entities", entity_routes::get_entity_routes())
         .nest("/users", user_routes::get_user_routes())
-        .nest("/sessions", auth_routes::get_auth_routes())
 }
 
 async fn add_test_data() {

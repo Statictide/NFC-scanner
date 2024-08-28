@@ -4,12 +4,9 @@ use crate::database::dao::entity_dao::{self, EntityTable};
 
 use super::errors::ServiceResult;
 
-pub async fn create_entity(entity: CreateEntity) -> anyhow::Result<Entity> {
+pub async fn create_entity(entity: CreateEntity) -> anyhow::Result<u32> {
     let entity_table = entity_dao::create_entity(entity.tag_uid, entity.name, entity.user_id, entity.parent_id).await?;
-
-    let entity = Entity::from(entity_table);
-
-    return Ok(entity);
+    return Ok(entity_table.id);
 }
 
 pub async fn get_entity(id: u32) -> ServiceResult<EnrichedEntity> {

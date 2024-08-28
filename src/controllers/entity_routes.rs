@@ -25,10 +25,9 @@ pub fn get_entity_routes() -> Router {
 }
 
 async fn create_entity(Json(create_entity): Json<CreateEntityDTO>) -> AppResult<impl IntoResponse> {
-    let entity = entity_service::create_entity(create_entity.into()).await?;
-    let entity_dto = EntityDTO::from(entity);
+    let id = entity_service::create_entity(create_entity.into()).await?;
 
-    Ok((StatusCode::CREATED, Json(entity_dto)))
+    Ok((StatusCode::CREATED, Json(id)))
 }
 
 async fn get_entity(Path(id): Path<u32>) -> AppResult<impl IntoResponse> {

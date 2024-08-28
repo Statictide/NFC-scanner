@@ -1,4 +1,6 @@
-use sqlx::{pool::PoolOptions, SqlitePool};
+use std::str::FromStr;
+
+use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
 use tokio::sync::OnceCell;
 
 pub type Pool = sqlx::SqlitePool;
@@ -8,31 +10,29 @@ pub async fn pool() -> &'static Pool {
     POOL.get().expect("Database pool is not initialized")
 }
 
-pub async fn init_database_pool(database_url: &str) -> Result<(), sqlx::Error> {
-        let database_url = format!("{database_url}");
-        let pool = SqlitePool::connect(&database_url).await?;
+pub async fn init_database_pool() {
+    let database_url = std::env::var("DATABASE_URL").expect("Environment variable missing: DATABASE_URL");
 
-        init_pool(pool).await
+    let conn = SqliteConnectOptions::from_str(&database_url)
+        .expect("Failed to parse DATABASE_URL")
+        //.create_if_missing(true)
+        ;
+
+    let pool = SqlitePoolOptions::new()
+        //.max_connections(1)
+        //.idle_timeout(None)
+        //.max_lifetime(None)
+        .connect_with(conn)
+        .await
+        .expect("Failed to connect to database");
+
+    init_pool(pool).await;
 }
 
-
-async fn init_pool(pool: Pool) -> Result<(), sqlx::Error> {
-    sqlx::migrate!().run(&pool).await?;
-
-    POOL.set(pool).expect("Database already initialized");
-    Ok(())
-}
-
-
-
-async fn _init_database_pool_in_memory() -> Result<(), sqlx::Error> {
-    let database_url = "sqlite://:memory:";
-    let pool: Pool = PoolOptions::new()
-        .max_connections(1)
-        .idle_timeout(None)
-        .max_lifetime(None)
-        .connect(&database_url)
-        .await?;
-
-    init_pool(pool).await
+async fn init_pool(pool: Pool) {
+    sqlx::migrate!()
+        .run(&pool)
+        .await
+        .expect("Failed to run database migrations");
+    POOL.set(pool).expect("Failed to set database pool");
 }

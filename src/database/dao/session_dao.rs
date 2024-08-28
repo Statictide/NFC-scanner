@@ -19,6 +19,7 @@ pub async fn create_session(user_id: u32, token: String) -> sqlx::Result<Session
     Ok(session)
 }
 
+
 #[derive(sqlx::FromRow)]
 pub struct SessionTable {
     pub id: u32,

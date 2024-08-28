@@ -9,16 +9,14 @@ use tower_http::trace::TraceLayer;
 
 #[tokio::main]
 async fn main() {
-    // start tracing subscriber
+    // Start tracing subscriber
     tracing_subscriber::fmt::init();
 
+    // Load .env file
     dotenvy::dotenv().ok();
-    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL is not set");
 
     // Initialize database pool upfront
-    db::init_database_pool(&database_url)
-        .await
-        .expect("Failed to initialize database connection");
+    db::init_database_pool().await;
 
     let app = axum::Router::new()
         .route("/", get("NFC Scanner"))
@@ -26,12 +24,12 @@ async fn main() {
         .fallback((StatusCode::NOT_FOUND, "Route not Found"))
         .layer(TraceLayer::new_for_http());
 
-    // Cannot make IPv6 work because it infefers with android dual stack :(
+    // Cannot make IPv6 work because it infers with android dual stack :(
     let addr = SocketAddr::from((Ipv4Addr::UNSPECIFIED, 8080));
 
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
 
-    println!("Listening on http://{addr}");
+    println!("Listening on {addr}. See http://localhost:{}", addr.port());
     axum::serve(listener, app).await.unwrap();
 }
