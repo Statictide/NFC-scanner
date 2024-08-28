@@ -19,7 +19,7 @@ pub async fn _get_user(id: u32) -> sqlx::Result<UserTable> {
     Ok(user)
 }
 
-pub async fn get_user_by_username(username: String) -> sqlx::Result<UserTable> {
+pub async fn _get_user_by_username(username: String) -> sqlx::Result<UserTable> {
     let user_option: UserTable = sqlx::query_as("select * from user where username = $1")
         .bind(username)
         .fetch_one(db::pool().await)
