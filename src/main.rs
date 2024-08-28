@@ -12,8 +12,11 @@ async fn main() {
     // start tracing subscriber
     tracing_subscriber::fmt::init();
 
+    dotenvy::dotenv().ok();
+    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL is not set");
+
     // Initialize database pool upfront
-    db::init_database_pool(db::DatabaseType::InMemory)
+    db::init_database_pool(&database_url)
         .await
         .expect("Failed to initialize database connection");
 
