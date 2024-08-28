@@ -148,7 +148,7 @@ pub struct RichEntityDTO {
 impl From<entity_service::EnrichedEntity> for RichEntityDTO {
     fn from(e: entity_service::EnrichedEntity) -> Self {
         Self {
-            entity: e.entity.into(),
+            entity: EntityDTO::from(e.entity),
             parent: e.parent.map(EntityDTO::from),
             children: e.children.into_iter().map(EntityDTO::from).collect(),
         }

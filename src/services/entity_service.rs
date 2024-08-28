@@ -113,6 +113,7 @@ pub struct CreateEntity {
 
 pub struct Entity {
     pub id: u32,
+    #[allow(dead_code)]
     pub user_id: u32,
     pub tag_uid: String,
     pub name: String,
