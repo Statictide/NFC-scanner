@@ -58,11 +58,20 @@ async fn get_entities_by_user_id(
     Query(UserIdQuery { user_id: _user_id }): Query<UserIdQuery>,
 ) -> AppResult<impl IntoResponse> {
     let user_id = 1;
-    tracing::warn!("Using fixed user_id = {user_id}");
+    tracing::info!("Using fixed user_id = {user_id}");
     let entities = entity_service::get_entities_by_user_id(user_id).await?;
-    let entities_dto: Vec<EntityClosureDTO> = entities.into_iter().map(EntityClosureDTO::from).collect::<Vec<_>>();
+    let mut entities_dto: Vec<EntityClosureDTO> = entities.into_iter().map(EntityClosureDTO::from).collect::<Vec<_>>();
+    sort_entities_by_id(&mut entities_dto);
 
     return Ok((StatusCode::OK, Json(entities_dto)));
+}
+
+// sort entityies by id, and recursivly sort the children
+fn sort_entities_by_id(entities: &mut Vec<EntityClosureDTO>) {
+    entities.sort_by_key(|e| e.id);
+    for entity in entities.iter_mut() {
+        sort_entities_by_id(&mut entity.children);
+    }
 }
 
 async fn update_entity(
