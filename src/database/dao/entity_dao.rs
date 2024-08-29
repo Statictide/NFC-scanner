@@ -23,7 +23,16 @@ pub async fn create_entity(
     Ok(entity)
 }
 
-pub async fn get_entity(id: u32) -> DatabaseResult<EnrichedEntity> {
+pub async fn _get_entity(id: u32) -> DatabaseResult<EntityTable> {
+    let entity: EntityTable = sqlx::query_as("select * from entity where id = $1")
+        .bind(id)
+        .fetch_one(db::pool().await)
+        .await?;
+
+    Ok(entity)
+}
+
+pub async fn get_entity_enriched(id: u32) -> DatabaseResult<EnrichedEntity> {
     // Get the entity with the given id, the parent of the entity, and all children of the entity
     let entities: Vec<EntityTable> = sqlx::query_as(
         r#"
@@ -99,16 +108,6 @@ pub async fn update_entity(id: u32, user_id: u32, tag_uid: String, name: String)
     Ok(())
 }
 
-pub async fn update_entity_parent(id: u32, parent_id: u32) -> DatabaseResult<()> {
-    sqlx::query("update entity set parent_id = $1 where id = $2")
-        .bind(parent_id)
-        .bind(id)
-        .execute(db::pool().await)
-        .await?;
-
-    Ok(())
-}
-
 pub async fn delete_entity(id: u32) -> DatabaseResult<()> {
     sqlx::query("delete from entity where id = $1")
         .bind(id)
@@ -124,7 +123,7 @@ pub async fn get_entity_by_tag_uid(tag_uid: String) -> DatabaseResult<EnrichedEn
         .fetch_one(db::pool().await)
         .await?;
 
-    let entity = get_entity(entity_id).await?;
+    let entity = get_entity_enriched(entity_id).await?;
 
     Ok(entity)
 }

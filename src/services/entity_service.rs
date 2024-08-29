@@ -9,19 +9,19 @@ pub async fn create_entity(entity: CreateEntity) -> anyhow::Result<u32> {
     return Ok(entity_table.id);
 }
 
-pub async fn get_entity(id: u32) -> ServiceResult<EnrichedEntity> {
-    let entity_table = entity_dao::get_entity(id).await?;
-    let entity = EnrichedEntity::from(entity_table);
+pub async fn _get_entity(id: u32) -> ServiceResult<Entity> {
+    let entity_table = entity_dao::_get_entity(id).await?;
+    let entity = Entity::from(entity_table);
     Ok(entity)
 }
 
-pub async fn get_entity_by_tag_id(tag_uid: String) -> ServiceResult<EnrichedEntity> {
+pub async fn get_entity_by_tag_uid(tag_uid: String) -> ServiceResult<EnrichedEntity> {
     let entity_table = entity_dao::get_entity_by_tag_uid(tag_uid).await?;
     let entity = EnrichedEntity::from(entity_table);
     Ok(entity)
 }
 
-pub async fn get_entities_by_user_id(user_id: u32) -> ServiceResult<Vec<EntityClosure>> {
+pub async fn get_entities(user_id: u32) -> ServiceResult<Vec<EntityClosure>> {
     // Get entities
     let entities = entity_dao::get_entities_by_user_id(user_id).await?;
 
@@ -91,11 +91,6 @@ pub async fn update_entity(id: u32, entity: CreateEntity) -> ServiceResult<()> {
     entity_dao::update_entity(id, entity.user_id, entity.tag_uid, entity.name).await?;
 
     return Ok(());
-}
-
-pub async fn update_entity_partial(id: u32, parent_id: u32) -> ServiceResult<()> {
-    entity_dao::update_entity_parent(id, parent_id).await?;
-    Ok(())
 }
 
 pub async fn delete_entity(id: u32) -> anyhow::Result<()> {
