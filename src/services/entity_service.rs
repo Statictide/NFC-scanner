@@ -1,6 +1,6 @@
 use crate::database::dao::entity_dao;
 
-use super::errors::ServiceResult;
+use super::errors::{ServiceError, ServiceResult};
 
 pub async fn create_entity(entity: CreateEntity) -> anyhow::Result<u32> {
     let entity_table = entity_dao::create_entity(entity.tag_uid, entity.name, entity.user_id, entity.parent_id).await?;
@@ -13,20 +13,44 @@ pub async fn get_entity(id: u32) -> ServiceResult<Entity> {
     Ok(entity)
 }
 
-pub async fn get_entity_by_tag_uid(tag_uid: String) -> ServiceResult<Entity> {
-    let entity_table = entity_dao::get_entity_by_tag_uid(tag_uid, 1).await?;
-    let entity = Entity::from_rich_entity(entity_table);
-    Ok(entity)
+pub async fn get_entity_by_tag_uid(tag_uid: String) -> ServiceResult<EntityClosure> {
+    let entity = entity_dao::get_entity_by_tag_uid(tag_uid, 1).await?;
+    let entity_closure = get_entity_closure(entity.id).await?;
+    Ok(entity_closure)
 }
 
-pub async fn get_entities(user_id: u32) -> ServiceResult<Vec<EntityClosure>> {
+pub async fn get_entity_closures() -> ServiceResult<Vec<EntityClosure>> {
     // Get entities
-    let entity_closures = entity_dao::get_entity_closures(user_id).await?;
+    let entity_closures = entity_dao::get_entity_closures(1).await?;
     let entity_closures_mapped = entity_closures
         .into_iter()
         .map(EntityClosure::from_entity_closure)
         .collect();
     Ok(entity_closures_mapped)
+}
+
+pub async fn get_entity_closure(id: u32) -> ServiceResult<EntityClosure> {
+    // Get entities
+    let entity_closures = entity_dao::get_entity_closures(1).await?;
+    let entity_closure = find_entity(id, entity_closures).ok_or(ServiceError::NotFound)?;
+
+    let entity_closure_mapped = EntityClosure::from_entity_closure(entity_closure);
+    Ok(entity_closure_mapped)
+}
+
+fn find_entity(id: u32, entity_closures: Vec<entity_dao::EntityClosure>) -> Option<entity_dao::EntityClosure> {
+    for entity_closure in entity_closures {
+        if entity_closure.id == id {
+            return Some(entity_closure)
+        }
+
+        let found = find_entity(id, entity_closure.children);
+        if found.is_some() {
+            return found
+        } 
+    }
+    
+    return None;
 }
 
 pub async fn update_entity(id: u32, entity: CreateEntity) -> ServiceResult<()> {

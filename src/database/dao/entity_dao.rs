@@ -30,7 +30,7 @@ pub async fn get_entity(id: u32, user_id: u32) -> DatabaseResult<EntityRich> {
         r#"
             select e.*, parent.name as parent_name
             from entity e
-            left join entity parent on parent.id = e.id
+            left join entity parent on parent.id = e.parent_id
             where e.id = $1 and e.user_id = $2
             "#,
     )
@@ -126,7 +126,7 @@ pub async fn get_entities(user_id: u32) -> DatabaseResult<Vec<EntityRich>> {
         r#"
             select e.*, parent.name as parent_name
             from entity e
-            left join entity parent on parent.id = e.id
+            left join entity parent on parent.id = e.parent_id
             where e.user_id = $1
             "#,
     )

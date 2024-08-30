@@ -25,8 +25,8 @@ async fn create_entity(Json(create_entity): Json<CreateEntityDTO>) -> AppResult<
 }
 
 async fn get_entity(Path(id): Path<u32>) -> AppResult<impl IntoResponse> {
-    let entity = entity_service::get_entity(id).await?;
-    let entity = EntityDTO::from(entity);
+    let entity = entity_service::get_entity_closure(id).await?;
+    let entity = EntityClosureDTO::from_entity_closure(entity);
     Ok((StatusCode::OK, Json(entity)))
 }
 
@@ -37,7 +37,7 @@ struct TagIdQuery {
 
 async fn get_entity_by_tag(Query(TagIdQuery { tag_uid }): Query<TagIdQuery>) -> AppResult<impl IntoResponse> {
     let entity = entity_service::get_entity_by_tag_uid(tag_uid).await?;
-    let entity = EntityDTO::from(entity);
+    let entity = EntityClosureDTO::from_entity_closure(entity);
 
     return Ok((StatusCode::OK, Json(entity)));
 }
@@ -50,7 +50,7 @@ struct UserIdQuery {
 async fn get_entities(Query(UserIdQuery { user_id: _user_id }): Query<UserIdQuery>) -> AppResult<impl IntoResponse> {
     let user_id = 1;
     tracing::info!("Using fixed user_id = {user_id}");
-    let entities = entity_service::get_entities(user_id).await?;
+    let entities = entity_service::get_entity_closures().await?;
     let mut entities_dto: Vec<EntityClosureDTO> = entities
         .into_iter()
         .map(EntityClosureDTO::from_entity_closure)
