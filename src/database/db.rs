@@ -15,17 +15,9 @@ pub async fn pool() -> &'static Pool {
 pub async fn init_database_pool() {
     let database_url = std::env::var("DATABASE_URL").expect("Environment variable missing: DATABASE_URL");
 
-    // Add test data
-    let env = env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string());
-    if (env == "dev" || env == "test") && database_url.contains(":memory:") {
-        tracing::info!("Adding test data");
-        add_test_data().await;
-    }
-
     let conn = SqliteConnectOptions::from_str(&database_url)
         .expect("Failed to parse DATABASE_URL")
-        //.create_if_missing(true)
-        ;
+        .create_if_missing(true);
 
     let pool = SqlitePoolOptions::new()
         //.max_connections(1)
@@ -36,6 +28,13 @@ pub async fn init_database_pool() {
         .expect("Failed to connect to database");
 
     init_pool(pool).await;
+
+    // Add test data after init
+    let env = env::var("ENVIRONMENT").unwrap_or_else(|_| "dev".to_string());
+    if (env == "dev" || env == "test") && database_url.contains(":memory:") {
+        tracing::info!("Adding test data");
+        add_test_data().await;
+    }
 }
 
 async fn init_pool(pool: Pool) {
@@ -43,7 +42,9 @@ async fn init_pool(pool: Pool) {
         .run(&pool)
         .await
         .expect("Failed to run database migrations");
+
     POOL.set(pool).expect("Failed to set database pool");
+    tracing::info!("Database pool initialized")
 }
 
 async fn add_test_data() {
