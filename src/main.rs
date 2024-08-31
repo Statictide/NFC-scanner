@@ -4,9 +4,9 @@ mod services;
 
 use axum::{http::StatusCode, routing::get};
 use database::db;
-use tracing::Level;
 use std::net::{Ipv4Addr, SocketAddr};
 use tower_http::trace::{self, DefaultOnFailure, DefaultOnRequest, DefaultOnResponse, TraceLayer};
+use tracing::Level;
 
 #[tokio::main]
 async fn main() {
@@ -25,7 +25,6 @@ async fn main() {
         .on_request(DefaultOnRequest::new().level(Level::INFO))
         .on_response(DefaultOnResponse::new().level(Level::INFO))
         .on_failure(DefaultOnFailure::new().level(Level::ERROR));
-
 
     let app = axum::Router::new()
         .route("/", get("NFC Scanner"))

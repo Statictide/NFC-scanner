@@ -7,12 +7,6 @@ pub async fn create_entity(entity: CreateEntity) -> anyhow::Result<u32> {
     Ok(entity_table.id)
 }
 
-pub async fn get_entity(id: u32) -> ServiceResult<Entity> {
-    let entity = entity_dao::get_entity(id, 1).await?;
-    let entity = Entity::from_rich_entity(entity);
-    Ok(entity)
-}
-
 pub async fn get_entity_closure_by_tag_uid(tag_uid: String) -> ServiceResult<EntityClosure> {
     let entity = entity_dao::get_entity_by_tag_uid(tag_uid, 1).await?;
     let entity_closure = get_entity_closure(entity.id).await?;
@@ -41,15 +35,15 @@ pub async fn get_entity_closure(id: u32) -> ServiceResult<EntityClosure> {
 fn find_entity(id: u32, entity_closures: Vec<entity_dao::EntityClosure>) -> Option<entity_dao::EntityClosure> {
     for entity_closure in entity_closures {
         if entity_closure.id == id {
-            return Some(entity_closure)
+            return Some(entity_closure);
         }
 
         let found = find_entity(id, entity_closure.children);
         if found.is_some() {
-            return found
-        } 
+            return found;
+        }
     }
-    
+
     return None;
 }
 

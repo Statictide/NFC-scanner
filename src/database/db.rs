@@ -8,10 +8,16 @@ use crate::services::user_service;
 pub type Pool = sqlx::SqlitePool;
 static POOL: OnceCell<Pool> = OnceCell::const_new();
 
+/**
+ * Get the database pool
+ */
 pub async fn pool() -> &'static Pool {
     POOL.get().expect("Database pool is not initialized")
 }
 
+/**
+ * Initialize the database pool
+ */
 pub async fn init_database_pool() {
     let database_url = std::env::var("DATABASE_URL").expect("Environment variable missing: DATABASE_URL");
 
@@ -29,7 +35,7 @@ pub async fn init_database_pool() {
 
     init_pool(pool).await;
 
-    // Add test data after init
+    // Add test data
     let env = env::var("ENVIRONMENT").unwrap_or_else(|_| "dev".to_string());
     if (env == "dev" || env == "test") && database_url.contains(":memory:") {
         tracing::info!("Adding test data");

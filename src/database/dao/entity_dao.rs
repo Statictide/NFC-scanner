@@ -25,12 +25,11 @@ pub async fn create_entity(
     Ok(entity)
 }
 
-pub async fn get_entity(id: u32, user_id: u32) -> DatabaseResult<EntityRich> {
-    let entity: EntityRich = sqlx::query_as(
+pub async fn get_entity(id: u32, user_id: u32) -> DatabaseResult<EntityTable> {
+    let entity = sqlx::query_as(
         r#"
-            select e.*, parent.name as parent_name
+            select *
             from entity e
-            left join entity parent on parent.id = e.parent_id
             where e.id = $1 and e.user_id = $2
             "#,
     )
@@ -42,7 +41,7 @@ pub async fn get_entity(id: u32, user_id: u32) -> DatabaseResult<EntityRich> {
     Ok(entity)
 }
 
-pub async fn get_entity_by_tag_uid(tag_uid: String, user_id: u32) -> DatabaseResult<EntityRich> {
+pub async fn get_entity_by_tag_uid(tag_uid: String, user_id: u32) -> DatabaseResult<EntityTable> {
     let (entity_id,): (u32,) = sqlx::query_as("select id from entity where tag_uid = $1")
         .bind(&tag_uid)
         .fetch_one(db::pool().await)
@@ -159,7 +158,7 @@ pub async fn delete_entity(id: u32, user_id: u32) -> DatabaseResult<()> {
     Ok(())
 }
 
-#[derive(serde::Serialize, sqlx::FromRow, Clone, Debug)]
+#[derive(sqlx::FromRow, Clone, Debug)]
 pub struct EntityTable {
     pub id: u32,
     pub user_id: u32,

@@ -1,6 +1,5 @@
 use crate::services::{entity_service, errors::ServiceError};
 
-use anyhow::bail;
 use axum::{
     extract::{Path, Query},
     http::StatusCode,
@@ -9,7 +8,6 @@ use axum::{
     Json, Router,
 };
 use serde::Deserialize;
-use sqlx::error::DatabaseError;
 
 use crate::controllers::errors::AppResult;
 
@@ -38,14 +36,14 @@ struct TagIdQuery {
     pub create: Option<bool>,
 }
 
-async fn get_entity_by_tag(Query(TagIdQuery { tag_uid , create }): Query<TagIdQuery>) -> AppResult<impl IntoResponse> {
+async fn get_entity_by_tag(Query(TagIdQuery { tag_uid, create }): Query<TagIdQuery>) -> AppResult<impl IntoResponse> {
     let entity_result = entity_service::get_entity_closure_by_tag_uid(tag_uid.clone()).await;
 
     let create = create.unwrap_or(false);
     let entity = match (entity_result, create) {
         // Found entity
         (Ok(entity), _) => entity,
-        
+
         // Not found, create
         (Err(ServiceError::NotFound), true) => {
             let create_entity = CreateEntityDTO {
@@ -71,8 +69,7 @@ struct UserIdQuery {
     pub user_id: u32,
 }
 
-async fn get_entities(Query(UserIdQuery { user_id: _user_id }): Query<UserIdQuery>) -> AppResult<impl IntoResponse> {
-    let user_id = 1;
+async fn get_entities(Query(UserIdQuery { user_id }): Query<UserIdQuery>) -> AppResult<impl IntoResponse> {
     let entities = entity_service::get_entity_closures().await?;
     let mut entities_dto: Vec<EntityClosureDTO> = entities
         .into_iter()
