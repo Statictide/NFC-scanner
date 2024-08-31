@@ -1,23 +1,22 @@
 use std::collections::HashMap;
 
-use crate::database::{db, errors::DatabaseResult};
+use crate::database::{db, errors::{DatabaseError, DatabaseResult}};
 
 pub async fn create_entity(
+    user_id: u32,
     tag_uid: String,
     name: String,
-    user_id: u32,
     parent_id: Option<u32>,
 ) -> DatabaseResult<EntityTable> {
     let entity: EntityTable = sqlx::query_as(
         r#"
-            insert into entity 
-                (name, tag_uid, user_id, parent_id) values ($1, $2, $3, $4) 
+            insert into entity (user_id, name, tag_uid, parent_id) values ($1, $2, $3, $4) 
             returning *
             "#,
     )
+    .bind(user_id)
     .bind(name)
     .bind(tag_uid)
-    .bind(user_id)
     .bind(parent_id)
     .fetch_one(db::pool().await)
     .await?;
@@ -136,24 +135,39 @@ pub async fn get_entities(user_id: u32) -> DatabaseResult<Vec<EntityRich>> {
     Ok(entities)
 }
 
-pub async fn update_entity(id: u32, user_id: u32, tag_uid: String, name: String) -> DatabaseResult<()> {
-    sqlx::query("update entity set name = $1, tag_uid = $2, user_id = $3 where id = $4")
+pub async fn update_entity(
+    id: u32,
+    user_id: u32,
+    tag_uid: String,
+    name: String,
+    parent_id: Option<u32>,
+) -> DatabaseResult<()> {
+    let result = sqlx::query("update entity set name = $1, tag_uid = $2, parent_id = $3 where id = $4 and user_id = $5")
         .bind(name)
         .bind(tag_uid)
-        .bind(user_id)
+        .bind(parent_id)
         .bind(id)
+        .bind(user_id)
         .execute(db::pool().await)
         .await?;
+
+    if result.rows_affected() != 1 {
+        return Err(DatabaseError::NotFound);
+    }
 
     Ok(())
 }
 
 pub async fn delete_entity(id: u32, user_id: u32) -> DatabaseResult<()> {
-    sqlx::query("delete from entity where id = $1 and user_id = $2")
+    let result =  sqlx::query("delete from entity where id = $1 and user_id = $2")
         .bind(id)
         .bind(user_id)
         .execute(db::pool().await)
         .await?;
+
+    if result.rows_affected() != 1 {
+        return Err(DatabaseError::NotFound);
+    }
 
     Ok(())
 }

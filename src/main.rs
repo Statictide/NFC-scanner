@@ -1,11 +1,11 @@
-pub mod controllers;
+mod controllers;
 mod database;
 mod services;
 
 use axum::{http::StatusCode, routing::get};
 use database::db;
 use std::net::{Ipv4Addr, SocketAddr};
-use tower_http::trace::{self, DefaultOnFailure, DefaultOnRequest, DefaultOnResponse, TraceLayer};
+use tower_http::trace::{DefaultOnFailure, DefaultOnRequest, DefaultOnResponse, TraceLayer};
 use tracing::Level;
 
 #[tokio::main]
@@ -22,7 +22,7 @@ async fn main() {
     db::init_database_pool().await;
 
     let trace_layer = TraceLayer::new_for_http()
-        .on_request(DefaultOnRequest::new().level(Level::INFO))
+        .on_request(DefaultOnRequest::new().level(Level::DEBUG))
         .on_response(DefaultOnResponse::new().level(Level::INFO))
         .on_failure(DefaultOnFailure::new().level(Level::ERROR));
 

@@ -64,7 +64,6 @@ async fn add_test_data() {
     let parent_id = create_entity(CreateEntity {
         tag_uid: "0".to_string(),
         name: "Original Grandparent".to_string(),
-        user_id: user.id,
         parent_id: None,
     })
     .await
@@ -73,7 +72,6 @@ async fn add_test_data() {
     let entity_id = create_entity(CreateEntity {
         tag_uid: "049F3972FE4A80".to_string(),
         name: "Main entity 1".to_string(),
-        user_id: user.id,
         parent_id: Some(parent_id),
     })
     .await
@@ -82,7 +80,6 @@ async fn add_test_data() {
     let _child1 = create_entity(CreateEntity {
         tag_uid: "1".to_string(),
         name: "Child 1".to_string(),
-        user_id: user.id,
         parent_id: Some(entity_id),
     })
     .await
@@ -91,7 +88,6 @@ async fn add_test_data() {
     let _child2 = create_entity(CreateEntity {
         tag_uid: "2".to_string(),
         name: "Child 2".to_string(),
-        user_id: user.id,
         parent_id: Some(entity_id),
     })
     .await
@@ -100,7 +96,6 @@ async fn add_test_data() {
     let _ = create_entity(CreateEntity {
         tag_uid: "043A9F52A84A81".to_string(),
         name: "Main entity 2".to_string(),
-        user_id: user.id,
         parent_id: None,
     })
     .await

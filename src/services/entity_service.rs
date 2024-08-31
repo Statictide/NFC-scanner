@@ -1,21 +1,24 @@
 use crate::database::dao::entity_dao;
 
-use super::errors::{ServiceError, ServiceResult};
+use crate::services::errors::{ServiceError, ServiceResult};
+
+// FIXME:This is a global user id, this should be a parameter in the future
+const USER_ID: u32 = 1;
 
 pub async fn create_entity(entity: CreateEntity) -> anyhow::Result<u32> {
-    let entity_table = entity_dao::create_entity(entity.tag_uid, entity.name, entity.user_id, entity.parent_id).await?;
+    let entity_table = entity_dao::create_entity(USER_ID, entity.tag_uid, entity.name, entity.parent_id).await?;
     Ok(entity_table.id)
 }
 
 pub async fn get_entity_closure_by_tag_uid(tag_uid: String) -> ServiceResult<EntityClosure> {
-    let entity = entity_dao::get_entity_by_tag_uid(tag_uid, 1).await?;
+    let entity = entity_dao::get_entity_by_tag_uid(tag_uid, USER_ID).await?;
     let entity_closure = get_entity_closure(entity.id).await?;
     Ok(entity_closure)
 }
 
 pub async fn get_entity_closures() -> ServiceResult<Vec<EntityClosure>> {
     // Get entities
-    let entity_closures = entity_dao::get_entity_closures(1).await?;
+    let entity_closures = entity_dao::get_entity_closures(USER_ID).await?;
     let entity_closures_mapped = entity_closures
         .into_iter()
         .map(EntityClosure::from_entity_closure)
@@ -25,7 +28,7 @@ pub async fn get_entity_closures() -> ServiceResult<Vec<EntityClosure>> {
 
 pub async fn get_entity_closure(id: u32) -> ServiceResult<EntityClosure> {
     // Get entities
-    let entity_closures = entity_dao::get_entity_closures(1).await?;
+    let entity_closures = entity_dao::get_entity_closures(USER_ID).await?;
     let entity_closure = find_entity(id, entity_closures).ok_or(ServiceError::NotFound)?;
 
     let entity_closure_mapped = EntityClosure::from_entity_closure(entity_closure);
@@ -48,20 +51,46 @@ fn find_entity(id: u32, entity_closures: Vec<entity_dao::EntityClosure>) -> Opti
 }
 
 pub async fn update_entity(id: u32, entity: CreateEntity) -> ServiceResult<()> {
-    entity_dao::update_entity(id, 1, entity.tag_uid, entity.name).await?;
+    entity_dao::update_entity(id, USER_ID, entity.tag_uid, entity.name, entity.parent_id).await?;
+    Ok(())
+}
+
+pub async fn patch_entity(id: u32, patch_entity: PatchEntity) -> ServiceResult<()> {
+    let mut entity = entity_dao::get_entity(id, USER_ID).await?;
+
+    // Overwrite the fields that are present in the patch entity
+    if let Some(tag_uid) = patch_entity.tag_uid {
+        entity.tag_uid = tag_uid;
+    };
+
+    if let Some(name) = patch_entity.name {
+        entity.name = name;
+    };
+
+    if let Some(parent_id) = patch_entity.parent_id {
+        entity.parent_id = Some(parent_id);
+    };
+
+    entity_dao::update_entity(id, USER_ID, entity.tag_uid, entity.name, entity.parent_id).await?;
     Ok(())
 }
 
 pub async fn delete_entity(id: u32) -> anyhow::Result<()> {
-    entity_dao::delete_entity(id, 1).await?;
+    entity_dao::delete_entity(id, USER_ID).await?;
     Ok(())
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Debug)]
 pub struct CreateEntity {
-    pub user_id: u32,
     pub tag_uid: String,
     pub name: String,
+    pub parent_id: Option<u32>,
+}
+
+#[derive(serde::Deserialize, Debug)]
+pub struct PatchEntity {
+    pub tag_uid: Option<String>,
+    pub name: Option<String>,
     pub parent_id: Option<u32>,
 }
 

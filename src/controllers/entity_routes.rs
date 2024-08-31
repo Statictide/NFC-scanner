@@ -14,12 +14,18 @@ use crate::controllers::errors::AppResult;
 pub fn get_entity_routes() -> Router {
     Router::new()
         .route("/", post(create_entity).get(get_entities))
-        .route("/:id", get(get_entity).put(update_entity).delete(delete_entity))
+        .route(
+            "/:id",
+            get(get_entity)
+                .put(update_entity)
+                .patch(patch_entity)
+                .delete(delete_entity),
+        )
         .route("/by-tag", get(get_entity_by_tag))
 }
 
 async fn create_entity(Json(create_entity): Json<CreateEntityDTO>) -> AppResult<impl IntoResponse> {
-    let id = entity_service::create_entity(create_entity.into()).await?;
+    let id = entity_service::create_entity(create_entity.0).await?;
 
     Ok((StatusCode::CREATED, Json(id)))
 }
@@ -46,12 +52,12 @@ async fn get_entity_by_tag(Query(TagIdQuery { tag_uid, create }): Query<TagIdQue
 
         // Not found, create
         (Err(ServiceError::NotFound), true) => {
-            let create_entity = CreateEntityDTO {
+            let create_entity = entity_service::CreateEntity {
                 tag_uid: tag_uid,
                 name: String::new(),
                 parent_id: None,
             };
-            let id = entity_service::create_entity(create_entity.into()).await?;
+            let id = entity_service::create_entity(create_entity).await?;
             entity_service::get_entity_closure(id).await?
         }
 
@@ -66,10 +72,11 @@ async fn get_entity_by_tag(Query(TagIdQuery { tag_uid, create }): Query<TagIdQue
 
 #[derive(Deserialize)]
 struct UserIdQuery {
+    #[allow(dead_code)]
     pub user_id: u32,
 }
 
-async fn get_entities(Query(UserIdQuery { user_id }): Query<UserIdQuery>) -> AppResult<impl IntoResponse> {
+async fn get_entities(Query(_): Query<UserIdQuery>) -> AppResult<impl IntoResponse> {
     let entities = entity_service::get_entity_closures().await?;
     let mut entities_dto: Vec<EntityClosureDTO> = entities
         .into_iter()
@@ -92,7 +99,13 @@ async fn update_entity(
     Path(id): Path<u32>,
     Json(update_entity): Json<CreateEntityDTO>,
 ) -> AppResult<impl IntoResponse> {
-    entity_service::update_entity(id, update_entity.into()).await?;
+    entity_service::update_entity(id, update_entity.0).await?;
+
+    return Ok(StatusCode::NO_CONTENT);
+}
+
+async fn patch_entity(Path(id): Path<u32>, Json(patch_entity): Json<PatchEntityDTO>) -> AppResult<impl IntoResponse> {
+    entity_service::patch_entity(id, patch_entity.0).await?;
 
     return Ok(StatusCode::NO_CONTENT);
 }
@@ -103,44 +116,10 @@ async fn delete_entity(Path(id): Path<u32>) -> AppResult<impl IntoResponse> {
 }
 
 #[derive(Deserialize)]
-pub struct CreateEntityDTO {
-    tag_uid: String,
-    name: String,
-    parent_id: Option<u32>,
-}
+pub struct CreateEntityDTO(entity_service::CreateEntity);
 
-impl Into<entity_service::CreateEntity> for CreateEntityDTO {
-    fn into(self) -> entity_service::CreateEntity {
-        let user_id = 1;
-        entity_service::CreateEntity {
-            user_id,
-            tag_uid: self.tag_uid,
-            name: self.name,
-            parent_id: self.parent_id,
-        }
-    }
-}
-
-#[derive(serde::Serialize)]
-pub struct EntityDTO {
-    id: u32,
-    tag_uid: String,
-    name: String,
-    parent_id: Option<u32>,
-    parent_name: Option<String>,
-}
-
-impl EntityDTO {
-    fn from(e: entity_service::Entity) -> Self {
-        Self {
-            id: e.id,
-            tag_uid: e.tag_uid,
-            name: e.name,
-            parent_id: e.parent_id,
-            parent_name: e.parent_name,
-        }
-    }
-}
+#[derive(Deserialize)]
+pub struct PatchEntityDTO(entity_service::PatchEntity);
 
 #[derive(serde::Serialize)]
 pub struct EntityClosureDTO {
