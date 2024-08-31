@@ -20,6 +20,7 @@ pub async fn pool() -> &'static Pool {
  */
 pub async fn init_database_pool() {
     let database_url = std::env::var("DATABASE_URL").expect("Environment variable missing: DATABASE_URL");
+    tracing::info!("Database URL: {}", database_url);
 
     let conn = SqliteConnectOptions::from_str(&database_url)
         .expect("Failed to parse DATABASE_URL")
