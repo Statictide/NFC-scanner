@@ -138,12 +138,12 @@ pub async fn get_entities(user_id: u32) -> DatabaseResult<Vec<EntityRich>> {
 }
 
 pub async fn update_entity(id: u32, user_id: u32, tag_uid: String, name: String) -> DatabaseResult<()> {
-    sqlx::query_as("update entity set name = $1, tag_uid = $2, user_id = $3 where id = $4")
+    sqlx::query("update entity set name = $1, tag_uid = $2, user_id = $3 where id = $4")
         .bind(name)
         .bind(tag_uid)
         .bind(user_id)
         .bind(id)
-        .fetch_one(db::pool().await)
+        .execute(db::pool().await)
         .await?;
 
     Ok(())
