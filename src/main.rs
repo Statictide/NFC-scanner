@@ -4,13 +4,16 @@ mod services;
 
 use axum::{http::StatusCode, routing::get};
 use database::db;
+use tracing::Level;
 use std::net::{Ipv4Addr, SocketAddr};
-use tower_http::trace::TraceLayer;
+use tower_http::trace::{self, DefaultOnFailure, DefaultOnRequest, DefaultOnResponse, TraceLayer};
 
 #[tokio::main]
 async fn main() {
-    // Start tracing subscriber
-    tracing_subscriber::fmt::init();
+    // Log info
+    tracing_subscriber::FmtSubscriber::builder()
+        .with_max_level(tracing::Level::INFO)
+        .init();
 
     // Load .env file
     dotenvy::dotenv().ok();
@@ -18,11 +21,17 @@ async fn main() {
     // Initialize database pool upfront
     db::init_database_pool().await;
 
+    let trace_layer = TraceLayer::new_for_http()
+        .on_request(DefaultOnRequest::new().level(Level::INFO))
+        .on_response(DefaultOnResponse::new().level(Level::INFO))
+        .on_failure(DefaultOnFailure::new().level(Level::ERROR));
+
+
     let app = axum::Router::new()
         .route("/", get("NFC Scanner"))
         .nest("/api/v0", controllers::api::get_v0_api().await)
         .fallback((StatusCode::NOT_FOUND, "Route not Found"))
-        .layer(TraceLayer::new_for_http());
+        .layer(trace_layer);
 
     // Cannot make IPv6 work because it infers with android dual stack :(
     let addr = SocketAddr::from((Ipv4Addr::UNSPECIFIED, 8080));

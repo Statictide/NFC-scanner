@@ -49,7 +49,6 @@ struct UserIdQuery {
 
 async fn get_entities(Query(UserIdQuery { user_id: _user_id }): Query<UserIdQuery>) -> AppResult<impl IntoResponse> {
     let user_id = 1;
-    tracing::info!("Using fixed user_id = {user_id}");
     let entities = entity_service::get_entity_closures().await?;
     let mut entities_dto: Vec<EntityClosureDTO> = entities
         .into_iter()
@@ -92,7 +91,6 @@ pub struct CreateEntityDTO {
 impl Into<entity_service::CreateEntity> for CreateEntityDTO {
     fn into(self) -> entity_service::CreateEntity {
         let user_id = 1;
-        tracing::warn!("Using fixed user_id = {user_id}");
         entity_service::CreateEntity {
             user_id,
             tag_uid: self.tag_uid,
