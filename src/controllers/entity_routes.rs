@@ -1,5 +1,6 @@
-use crate::services::entity_service;
+use crate::services::{entity_service, errors::ServiceError};
 
+use anyhow::bail;
 use axum::{
     extract::{Path, Query},
     http::StatusCode,
@@ -8,6 +9,7 @@ use axum::{
     Json, Router,
 };
 use serde::Deserialize;
+use sqlx::error::DatabaseError;
 
 use crate::controllers::errors::AppResult;
 
@@ -33,10 +35,32 @@ async fn get_entity(Path(id): Path<u32>) -> AppResult<impl IntoResponse> {
 #[derive(Deserialize)]
 struct TagIdQuery {
     pub tag_uid: String,
+    pub create: Option<bool>,
 }
 
-async fn get_entity_by_tag(Query(TagIdQuery { tag_uid }): Query<TagIdQuery>) -> AppResult<impl IntoResponse> {
-    let entity = entity_service::get_entity_by_tag_uid(tag_uid).await?;
+async fn get_entity_by_tag(Query(TagIdQuery { tag_uid , create }): Query<TagIdQuery>) -> AppResult<impl IntoResponse> {
+    let entity_result = entity_service::get_entity_closure_by_tag_uid(tag_uid.clone()).await;
+
+    let create = create.unwrap_or(false);
+    let entity = match (entity_result, create) {
+        // Found entity
+        (Ok(entity), _) => entity,
+        
+        // Not found, create
+        (Err(ServiceError::NotFound), true) => {
+            let create_entity = CreateEntityDTO {
+                tag_uid: tag_uid,
+                name: String::new(),
+                parent_id: None,
+            };
+            let id = entity_service::create_entity(create_entity.into()).await?;
+            entity_service::get_entity_closure(id).await?
+        }
+
+        // Error
+        (Err(err), _) => return Err(err.into()),
+    };
+
     let entity = EntityClosureDTO::from_entity_closure(entity);
 
     return Ok((StatusCode::OK, Json(entity)));

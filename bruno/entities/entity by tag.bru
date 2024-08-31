@@ -5,11 +5,12 @@ meta {
 }
 
 get {
-  url: {{BASE_URL}}{{API_PATH}}/entities/by-tag?tag_uid={{tag_uid}}
+  url: {{BASE_URL}}{{API_PATH}}/entities/by-tag?tag_uid=abc&create=true
   body: none
   auth: inherit
 }
 
 query {
-  tag_uid: {{tag_uid}}
+  tag_uid: abc
+  create: true
 }

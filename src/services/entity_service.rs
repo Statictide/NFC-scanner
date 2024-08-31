@@ -13,7 +13,7 @@ pub async fn get_entity(id: u32) -> ServiceResult<Entity> {
     Ok(entity)
 }
 
-pub async fn get_entity_by_tag_uid(tag_uid: String) -> ServiceResult<EntityClosure> {
+pub async fn get_entity_closure_by_tag_uid(tag_uid: String) -> ServiceResult<EntityClosure> {
     let entity = entity_dao::get_entity_by_tag_uid(tag_uid, 1).await?;
     let entity_closure = get_entity_closure(entity.id).await?;
     Ok(entity_closure)
