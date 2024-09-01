@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use crate::database::{db, errors::{DatabaseError, DatabaseResult}};
+use crate::database::{
+    db,
+    errors::{DatabaseError, DatabaseResult},
+};
 
 pub async fn create_entity(
     user_id: u32,
@@ -142,14 +145,15 @@ pub async fn update_entity(
     name: String,
     parent_id: Option<u32>,
 ) -> DatabaseResult<()> {
-    let result = sqlx::query("update entity set name = $1, tag_uid = $2, parent_id = $3 where id = $4 and user_id = $5")
-        .bind(name)
-        .bind(tag_uid)
-        .bind(parent_id)
-        .bind(id)
-        .bind(user_id)
-        .execute(db::pool().await)
-        .await?;
+    let result =
+        sqlx::query("update entity set name = $1, tag_uid = $2, parent_id = $3 where id = $4 and user_id = $5")
+            .bind(name)
+            .bind(tag_uid)
+            .bind(parent_id)
+            .bind(id)
+            .bind(user_id)
+            .execute(db::pool().await)
+            .await?;
 
     if result.rows_affected() != 1 {
         return Err(DatabaseError::NotFound);
@@ -159,7 +163,7 @@ pub async fn update_entity(
 }
 
 pub async fn delete_entity(id: u32, user_id: u32) -> DatabaseResult<()> {
-    let result =  sqlx::query("delete from entity where id = $1 and user_id = $2")
+    let result = sqlx::query("delete from entity where id = $1 and user_id = $2")
         .bind(id)
         .bind(user_id)
         .execute(db::pool().await)

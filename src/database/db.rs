@@ -58,7 +58,7 @@ async fn add_test_data() {
     use crate::services::entity_service::create_entity;
     use crate::services::entity_service::CreateEntity;
 
-    let user = user_service::create_user("Mark".to_string(), "Static".to_string())
+    let _user = user_service::create_user("Mark".to_string(), "Static".to_string())
         .await
         .unwrap();
 

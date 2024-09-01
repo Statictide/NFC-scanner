@@ -94,9 +94,9 @@ pub struct PatchEntity {
     pub parent_id: Option<u32>,
 }
 
+#[allow(dead_code)]
 pub struct Entity {
     pub id: u32,
-    #[allow(dead_code)]
     pub user_id: u32,
     pub tag_uid: String,
     pub name: String,
@@ -104,6 +104,7 @@ pub struct Entity {
     pub parent_name: Option<String>,
 }
 
+#[allow(dead_code)]
 impl Entity {
     fn from_rich_entity(entity: entity_dao::EntityRich) -> Self {
         Self {

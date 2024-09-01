@@ -11,6 +11,7 @@ pub type AppResult<T> = Result<T, AppError>;
 pub enum AppError {
     #[error("Not found")]
     NotFound,
+    #[allow(dead_code)]
     #[error("Bad request: {0}")]
     BadRequest(String),
     #[error("Internal server error: {0}")]

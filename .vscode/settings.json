@@ -1,0 +1,7 @@
+{
+    // Move rust-analyzer's artifacts to a different directory, to avoid conflicts with Cargo.
+    "rust-analyzer.checkOnSave.extraArgs": [
+        "--target-dir",
+        "target/rust-analyzer"
+    ]
+}
