@@ -2,7 +2,7 @@
 Bruno
 ADB bridge 
 ```
-..\platform-tools\adb.exe reverse tcp:3000 tcp:3000
+..\platform-tools\adb.exe reverse tcp:8080 tcp:8080
 ```
 
 # Database

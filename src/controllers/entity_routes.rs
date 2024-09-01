@@ -31,9 +31,9 @@ async fn create_entity(Json(create_entity): Json<CreateEntityDTO>) -> AppResult<
 }
 
 async fn get_entity(Path(id): Path<u32>) -> AppResult<impl IntoResponse> {
-    let entity = entity_service::get_entity_closure(id).await?;
-    let entity = EntityClosureDTO::from_entity_closure(entity);
-    Ok((StatusCode::OK, Json(entity)))
+    let entity_closure = entity_service::get_entity_closure(id).await?;
+    let entity_closure: EntityClosureDTO = EntityClosureDTO::from_entity_closure(entity_closure);
+    Ok((StatusCode::OK, Json(entity_closure)))
 }
 
 #[derive(Deserialize)]
@@ -99,15 +99,15 @@ async fn update_entity(
     Path(id): Path<u32>,
     Json(update_entity): Json<CreateEntityDTO>,
 ) -> AppResult<impl IntoResponse> {
-    entity_service::update_entity(id, update_entity.0).await?;
+    let entity_closure = entity_service::update_entity(id, update_entity.0).await?;
 
-    return Ok(StatusCode::NO_CONTENT);
+    Ok((StatusCode::OK, Json(entity_closure)))
 }
 
 async fn patch_entity(Path(id): Path<u32>, Json(patch_entity): Json<PatchEntityDTO>) -> AppResult<impl IntoResponse> {
-    entity_service::patch_entity(id, patch_entity.0).await?;
+    let entity_closure = entity_service::patch_entity(id, patch_entity.0).await?;
 
-    return Ok(StatusCode::NO_CONTENT);
+    Ok((StatusCode::OK, Json(entity_closure)))
 }
 
 async fn delete_entity(Path(id): Path<u32>) -> AppResult<impl IntoResponse> {

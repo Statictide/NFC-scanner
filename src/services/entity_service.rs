@@ -50,12 +50,13 @@ fn find_entity(id: u32, entity_closures: Vec<entity_dao::EntityClosure>) -> Opti
     return None;
 }
 
-pub async fn update_entity(id: u32, entity: CreateEntity) -> ServiceResult<()> {
+pub async fn update_entity(id: u32, entity: CreateEntity) -> ServiceResult<EntityClosure> {
     entity_dao::update_entity(id, USER_ID, entity.tag_uid, entity.name, entity.parent_id).await?;
-    Ok(())
+    let entity_closure = get_entity_closure(id).await?;
+    Ok(entity_closure)
 }
 
-pub async fn patch_entity(id: u32, patch_entity: PatchEntity) -> ServiceResult<()> {
+pub async fn patch_entity(id: u32, patch_entity: PatchEntity) -> ServiceResult<EntityClosure> {
     let mut entity = entity_dao::get_entity(id, USER_ID).await?;
 
     // Overwrite the fields that are present in the patch entity
@@ -72,7 +73,8 @@ pub async fn patch_entity(id: u32, patch_entity: PatchEntity) -> ServiceResult<(
     };
 
     entity_dao::update_entity(id, USER_ID, entity.tag_uid, entity.name, entity.parent_id).await?;
-    Ok(())
+    let entity_closure = get_entity_closure(id).await?;
+    Ok(entity_closure)
 }
 
 pub async fn delete_entity(id: u32) -> anyhow::Result<()> {
