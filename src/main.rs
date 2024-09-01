@@ -1,6 +1,7 @@
 mod controllers;
 mod database;
 mod services;
+mod util;
 
 use axum::{http::StatusCode, routing::get};
 use database::db;

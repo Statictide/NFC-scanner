@@ -1,6 +1,7 @@
 use crate::database::dao::entity_dao;
 
 use crate::services::errors::{ServiceError, ServiceResult};
+use crate::util::Maybe;
 
 // FIXME:This is a global user id, this should be a parameter in the future
 const USER_ID: u32 = 1;
@@ -69,7 +70,10 @@ pub async fn patch_entity(id: u32, patch_entity: PatchEntity) -> ServiceResult<E
     };
 
     if let Some(parent_id) = patch_entity.parent_id {
-        entity.parent_id = Some(parent_id);
+        match parent_id.value {
+            Some(parent_id) => entity.parent_id = Some(parent_id),
+            None => entity.parent_id = None,
+        }
     };
 
     entity_dao::update_entity(id, USER_ID, entity.tag_uid, entity.name, entity.parent_id).await?;
@@ -93,7 +97,7 @@ pub struct CreateEntity {
 pub struct PatchEntity {
     pub tag_uid: Option<String>,
     pub name: Option<String>,
-    pub parent_id: Option<u32>,
+    pub parent_id: Option<Maybe<u32>>,
 }
 
 #[allow(dead_code)]

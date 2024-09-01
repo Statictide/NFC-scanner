@@ -105,6 +105,8 @@ async fn update_entity(
 }
 
 async fn patch_entity(Path(id): Path<u32>, Json(patch_entity): Json<PatchEntityDTO>) -> AppResult<impl IntoResponse> {
+    tracing::info!("Patch entity: {:#?}", patch_entity);
+    //let patch_entity: PatchEntityDTO = serde_json::from_value(patch_entity).unwrap();
     let entity_closure = entity_service::patch_entity(id, patch_entity.0).await?;
 
     Ok((StatusCode::OK, Json(entity_closure)))
@@ -116,9 +118,11 @@ async fn delete_entity(Path(id): Path<u32>) -> AppResult<impl IntoResponse> {
 }
 
 #[derive(Deserialize)]
+#[derive(Debug)]
 pub struct CreateEntityDTO(entity_service::CreateEntity);
 
 #[derive(Deserialize)]
+#[derive(Debug)]
 pub struct PatchEntityDTO(entity_service::PatchEntity);
 
 #[derive(serde::Serialize)]

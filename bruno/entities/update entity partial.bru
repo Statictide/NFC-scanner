@@ -5,15 +5,15 @@ meta {
 }
 
 patch {
-  url: {{BASE_URL}}{{API_PATH}}/entities/{{entity_id}}
+  url: {{BASE_URL}}{{API_PATH}}/entities/5
   body: json
   auth: inherit
 }
 
 body:json {
   {
-    "tag_uid": "049F3972FE4A80",
-    "name": "Main entity 2",
-    "parent_id": 1
+    "parent_id": {
+      "value": 1
+    }
   }
 }
