@@ -1,11 +1,9 @@
-use anyhow::bail;
-
 use crate::database::dao::entity_dao;
 
 use crate::services::errors::{ServiceError, ServiceResult};
 use crate::util::Maybe;
 
-// FIXME:This is a global user id, this should be a parameter in the future
+// FIXME: This is a global user id, this should be a parameter in the future
 const USER_ID: u32 = 1;
 
 pub async fn create_entity(entity: CreateEntity) -> anyhow::Result<u32> {
@@ -37,7 +35,6 @@ pub async fn get_entity_closure(id: u32) -> ServiceResult<EntityClosure> {
 }
 
 pub async fn update_entity(entity_id: u32, update: CreateEntity) -> ServiceResult<EntityClosure> {
-    println!("update_entity: {:?}", update);
     let existing = get_entity_closure(entity_id).await?;
     
     // Check for circular reference
@@ -60,7 +57,6 @@ pub async fn update_entity(entity_id: u32, update: CreateEntity) -> ServiceResul
 }
 
 pub async fn patch_entity(entity_id: u32, patch_entity: PatchEntity) -> ServiceResult<EntityClosure> {
-    println!("patch_entity: {:?}", patch_entity);
     let mut entity = entity_dao::get_entity(entity_id, USER_ID).await?;
 
     // Overwrite the fields that are present in the patch entity
