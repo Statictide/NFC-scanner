@@ -5,7 +5,10 @@ mod util;
 
 use axum::{http::StatusCode, response::IntoResponse, routing::get};
 use database::db;
-use std::net::{Ipv4Addr, SocketAddr};
+use std::{
+    env,
+    net::{Ipv4Addr, SocketAddr},
+};
 use tower_http::trace::{DefaultMakeSpan, DefaultOnFailure, DefaultOnRequest, DefaultOnResponse, TraceLayer};
 use tracing::Level;
 
@@ -35,8 +38,13 @@ async fn main() {
         .fallback(fallback)
         .layer(trace_layer);
 
+    let port: u16 = env::var("PORT")
+        .unwrap_or("8080".to_string())
+        .parse()
+        .expect("Failed to parse PORT");
+    
     // Cannot make IPv6 work because it infers with android dual stack :(
-    let addr = SocketAddr::from((Ipv4Addr::UNSPECIFIED, 8080));
+    let addr = SocketAddr::from((Ipv4Addr::UNSPECIFIED, port));
 
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();

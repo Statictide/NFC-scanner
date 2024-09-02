@@ -24,5 +24,6 @@ primary_region = 'ams'
   destination = "/data"
 
 [env]
-  ENV = "test"
   DATABASE_URL = "sqlite:///data/database.db"
+  ENV = "test"
+  
