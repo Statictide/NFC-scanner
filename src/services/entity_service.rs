@@ -19,16 +19,16 @@ pub async fn get_entity_closure_by_tag_uid(tag_uid: String) -> ServiceResult<Ent
 
 pub async fn get_entity_closures() -> ServiceResult<Vec<EntityClosure>> {
     let entities = entity_dao::get_entity_closures(USER_ID).await?;
-    let entity_closures_mapped = entities
-        .into_iter()
-        .map(EntityClosure::from_entity_closure)
-        .collect();
+    let entity_closures_mapped = entities.into_iter().map(EntityClosure::from_entity_closure).collect();
     Ok(entity_closures_mapped)
 }
 
 pub async fn get_entity_closure(id: u32) -> ServiceResult<EntityClosure> {
     let entities = entity_dao::get_entity_closures(USER_ID).await?;
-    let entities = entities.into_iter().map(EntityClosure::from_entity_closure).collect::<Vec<_>>();
+    let entities = entities
+        .into_iter()
+        .map(EntityClosure::from_entity_closure)
+        .collect::<Vec<_>>();
     let entity = EntityClosure::find_entity(entities, id).ok_or(ServiceError::NotFound)?;
 
     Ok(entity)
@@ -36,7 +36,7 @@ pub async fn get_entity_closure(id: u32) -> ServiceResult<EntityClosure> {
 
 pub async fn update_entity(entity_id: u32, update: CreateEntity) -> ServiceResult<EntityClosure> {
     let existing = get_entity_closure(entity_id).await?;
-    
+
     // Check for circular reference
     if let Some(update_parent_id) = update.parent_id {
         // Check self assign
@@ -44,13 +44,13 @@ pub async fn update_entity(entity_id: u32, update: CreateEntity) -> ServiceResul
         if is_assigning_to_self {
             return Err(ServiceError::CircularReference);
         }
-    
+
         // Check circular reference
         if let Some(_) = EntityClosure::find_entity(existing.children, update_parent_id) {
             return Err(ServiceError::CircularReference);
         }
     }
-    
+
     entity_dao::update_entity(entity_id, USER_ID, update.tag_uid, update.name, update.parent_id).await?;
     let entity_closure = get_entity_closure(entity_id).await?;
     Ok(entity_closure)
@@ -156,15 +156,13 @@ impl EntityClosure {
             if entity_closure.id == id {
                 return Some(entity_closure);
             }
-    
+
             let found = Self::find_entity(entity_closure.children, id);
             if found.is_some() {
                 return found;
             }
         }
-    
+
         return None;
     }
 }
-
-

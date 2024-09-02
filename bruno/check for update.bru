@@ -1,0 +1,18 @@
+meta {
+  name: check for update
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{BASE_URL}}{{API_PATH}}/check-for-update
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "version": "v0.0.0",
+    "platform": "Android"
+  }
+}

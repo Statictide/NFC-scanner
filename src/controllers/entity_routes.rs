@@ -115,12 +115,10 @@ async fn delete_entity(Path(id): Path<u32>) -> AppResult<impl IntoResponse> {
     return Ok(StatusCode::NO_CONTENT);
 }
 
-#[derive(Deserialize)]
-#[derive(Debug)]
+#[derive(Deserialize, Debug)]
 pub struct CreateEntityDTO(entity_service::CreateEntity);
 
-#[derive(Deserialize)]
-#[derive(Debug)]
+#[derive(Deserialize, Debug)]
 pub struct PatchEntityDTO(entity_service::PatchEntity);
 
 #[derive(serde::Serialize)]
