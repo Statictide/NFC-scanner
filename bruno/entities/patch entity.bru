@@ -1,11 +1,11 @@
 meta {
-  name: update entity partial
+  name: patch entity
   type: http
   seq: 3
 }
 
 patch {
-  url: {{BASE_URL}}{{API_PATH}}/entities/5
+  url: {{BASE_URL}}{{API_PATH}}/entities/{{entity_id}}
   body: json
   auth: inherit
 }

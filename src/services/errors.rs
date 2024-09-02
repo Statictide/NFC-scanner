@@ -6,6 +6,8 @@ pub type ServiceResult<T> = Result<T, ServiceError>;
 pub enum ServiceError {
     #[error("Not found")]
     NotFound,
+    #[error("Cannot create circular reference")]
+    CircularReference,
     #[error("Internal server error: {0}")]
     InternalServerError(#[from] anyhow::Error),
 }

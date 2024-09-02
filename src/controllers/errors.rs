@@ -35,6 +35,7 @@ impl From<ServiceError> for AppError {
         match error {
             ServiceError::NotFound => AppError::NotFound,
             ServiceError::InternalServerError(error) => AppError::InternalServerError(error),
+            ServiceError::CircularReference => AppError::BadRequest(ServiceError::CircularReference.to_string()),
         }
     }
 }
