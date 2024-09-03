@@ -179,6 +179,7 @@ pub async fn delete_entity(id: u32, user_id: u32) -> DatabaseResult<()> {
 #[derive(sqlx::FromRow, Clone, Debug)]
 pub struct EntityTable {
     pub id: u32,
+    #[allow(dead_code)]
     pub user_id: u32,
     pub tag_uid: String,
     pub name: String,

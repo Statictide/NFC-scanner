@@ -42,7 +42,7 @@ async fn main() {
         .unwrap_or("8080".to_string())
         .parse()
         .expect("Failed to parse PORT");
-    
+
     // Cannot make IPv6 work because it infers with android dual stack :(
     let addr = SocketAddr::from((Ipv4Addr::UNSPECIFIED, port));
 
