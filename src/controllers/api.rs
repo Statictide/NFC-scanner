@@ -24,21 +24,25 @@ mod update {
     pub async fn check_for_update(Json(body): axum::extract::Json<CheckForUpdateDTO>) -> AppResult<impl IntoResponse> {
         let (major, minor, patch) = parse_semver(body).await?;
 
-        // v0.0.0
         #[allow(unused_comparisons)]
-        if major >= 0 && minor >= 0 && patch >= 0 {
+        let is_acceptable_version = major >= 0 && minor >= 0 && patch >= 0;
+        if is_acceptable_version {
             let response = CheckForUpdateResponseDTO {
-                update_required: false,
+                update_mandatory: false,
                 update_recommended: false,
-                message: "All good".to_string(),
+                title: None,
+                message: None,
+                update_url: None,
             };
             return Ok((StatusCode::OK, Json(response)));
         }
 
         let response = CheckForUpdateResponseDTO {
-            update_required: false,
+            update_mandatory: false,
             update_recommended: true,
-            message: "Please update".to_string(),
+            title: Some("Update available".to_string()),
+            message: Some("Please update".to_string()),
+            update_url: Some("https://example.com".to_string()),
         };
         Ok((StatusCode::OK, Json(response)))
     }
@@ -84,8 +88,10 @@ mod update {
 
     #[derive(serde::Serialize)]
     pub struct CheckForUpdateResponseDTO {
-        pub update_required: bool,
+        pub update_mandatory: bool,
         pub update_recommended: bool,
-        pub message: String,
+        pub title: Option<String>,
+        pub message: Option<String>,
+        pub update_url: Option<String>,
     }
 }
