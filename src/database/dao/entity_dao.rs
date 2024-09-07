@@ -7,7 +7,7 @@ use crate::database::{
 
 pub async fn create_entity(
     user_id: u32,
-    tag_uid: String,
+    tag_uid: Option<String>,
     name: String,
     parent_id: Option<u32>,
 ) -> DatabaseResult<EntityTable> {
@@ -141,7 +141,7 @@ pub async fn get_entities(user_id: u32) -> DatabaseResult<Vec<EntityRich>> {
 pub async fn update_entity(
     id: u32,
     user_id: u32,
-    tag_uid: String,
+    tag_uid: Option<String>,
     name: String,
     parent_id: Option<u32>,
 ) -> DatabaseResult<()> {
@@ -181,7 +181,7 @@ pub struct EntityTable {
     pub id: u32,
     #[allow(dead_code)]
     pub user_id: u32,
-    pub tag_uid: String,
+    pub tag_uid: Option<String>,
     pub name: String,
     pub parent_id: Option<u32>,
 }
@@ -190,7 +190,7 @@ pub struct EntityTable {
 pub struct EntityRich {
     pub id: u32,
     pub user_id: u32,
-    pub tag_uid: String,
+    pub tag_uid: Option<String>,
     pub name: String,
     pub parent_id: Option<u32>,
     pub parent_name: Option<String>,
@@ -200,7 +200,7 @@ pub struct EntityRich {
 pub struct EntityClosure {
     pub id: u32,
     pub user_id: u32,
-    pub tag_uid: String,
+    pub tag_uid: Option<String>,
     pub name: String,
     pub parent_id: Option<u32>,
     pub parent_name: Option<String>,

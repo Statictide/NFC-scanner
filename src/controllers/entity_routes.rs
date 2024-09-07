@@ -53,7 +53,7 @@ async fn get_entity_by_tag(Query(TagIdQuery { tag_uid, create }): Query<TagIdQue
         // Not found, create
         (Err(ServiceError::NotFound), true) => {
             let create_entity = entity_service::CreateEntity {
-                tag_uid: tag_uid,
+                tag_uid: Some(tag_uid),
                 name: String::new(),
                 parent_id: None,
             };
@@ -125,7 +125,7 @@ pub struct PatchEntityDTO(entity_service::PatchEntity);
 pub struct EntityClosureDTO {
     pub id: u32,
     pub user_id: u32,
-    pub tag_uid: String,
+    pub tag_uid: Option<String>,
     pub name: String,
     pub parent_id: Option<u32>,
     pub parent_name: Option<String>,

@@ -1,8 +1,11 @@
+# Tools
+- Bruno
 
-Bruno
-ADB bridge 
+# Run locally
+Make server visible to your android device
+[Download ADB bridge](https://developer.android.com/tools/releases/platform-tools)
 ```
-..\platform-tools\adb.exe reverse tcp:8080 tcp:8080
+./tools/adb.exe reverse tcp:8080 tcp:8080
 ```
 
 # Database

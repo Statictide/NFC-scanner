@@ -63,7 +63,7 @@ async fn add_test_data() {
         .unwrap();
 
     let parent_id = create_entity(CreateEntity {
-        tag_uid: "0".to_string(),
+        tag_uid: None,
         name: "Original Grandparent".to_string(),
         parent_id: None,
     })
@@ -71,7 +71,7 @@ async fn add_test_data() {
     .unwrap();
 
     let entity_id = create_entity(CreateEntity {
-        tag_uid: "049F3972FE4A80".to_string(),
+        tag_uid: Some("049F3972FE4A80".to_string()),
         name: "Main entity 1".to_string(),
         parent_id: Some(parent_id),
     })
@@ -79,7 +79,7 @@ async fn add_test_data() {
     .unwrap();
 
     let _child1 = create_entity(CreateEntity {
-        tag_uid: "1".to_string(),
+        tag_uid: None,
         name: "Child 1".to_string(),
         parent_id: Some(entity_id),
     })
@@ -87,7 +87,7 @@ async fn add_test_data() {
     .unwrap();
 
     let _child2 = create_entity(CreateEntity {
-        tag_uid: "2".to_string(),
+        tag_uid: None,
         name: "Child 2".to_string(),
         parent_id: Some(entity_id),
     })
@@ -95,7 +95,7 @@ async fn add_test_data() {
     .unwrap();
 
     let _ = create_entity(CreateEntity {
-        tag_uid: "043A9F52A84A81".to_string(),
+        tag_uid: None,
         name: "Main entity 2".to_string(),
         parent_id: None,
     })

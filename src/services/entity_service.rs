@@ -61,7 +61,7 @@ pub async fn patch_entity(entity_id: u32, patch_entity: PatchEntity) -> ServiceR
 
     // Overwrite the fields that are present in the patch entity
     if let Some(tag_uid) = patch_entity.tag_uid {
-        entity.tag_uid = tag_uid;
+        entity.tag_uid = tag_uid.value;
     };
 
     if let Some(name) = patch_entity.name {
@@ -91,14 +91,14 @@ pub async fn delete_entity(id: u32) -> anyhow::Result<()> {
 
 #[derive(serde::Deserialize, Debug)]
 pub struct CreateEntity {
-    pub tag_uid: String,
+    pub tag_uid: Option<String>,
     pub name: String,
     pub parent_id: Option<u32>,
 }
 
 #[derive(serde::Deserialize, Debug)]
 pub struct PatchEntity {
-    pub tag_uid: Option<String>,
+    pub tag_uid: Option<Maybe<String>>,
     pub name: Option<String>,
     pub parent_id: Option<Maybe<u32>>,
 }
@@ -107,7 +107,7 @@ pub struct PatchEntity {
 pub struct Entity {
     pub id: u32,
     pub user_id: u32,
-    pub tag_uid: String,
+    pub tag_uid: Option<String>,
     pub name: String,
     pub parent_id: Option<u32>,
     pub parent_name: Option<String>,
@@ -131,7 +131,7 @@ impl Entity {
 pub struct EntityClosure {
     pub id: u32,
     pub user_id: u32,
-    pub tag_uid: String,
+    pub tag_uid: Option<String>,
     pub name: String,
     pub parent_id: Option<u32>,
     pub parent_name: Option<String>,
