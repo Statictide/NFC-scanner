@@ -25,7 +25,7 @@ mod update {
         let (major, minor, patch) = parse_semver(body).await?;
 
         #[allow(unused_comparisons)]
-        let is_acceptable_version = major >= 0 && minor >= 0 && patch >= 0;
+        let is_acceptable_version = major >= 0 && minor >= 0 && patch >= 1;
         if is_acceptable_version {
             let response = CheckForUpdateResponseDTO {
                 update_mandatory: false,
@@ -38,10 +38,10 @@ mod update {
         }
 
         let response = CheckForUpdateResponseDTO {
-            update_mandatory: false,
+            update_mandatory: true,
             update_recommended: true,
             title: Some("Update available".to_string()),
-            message: Some("Please update".to_string()),
+            message: Some("Breaking change".to_string()),
             update_url: Some("https://example.com".to_string()),
         };
         Ok((StatusCode::OK, Json(response)))
