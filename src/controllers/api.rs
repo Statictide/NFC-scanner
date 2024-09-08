@@ -22,10 +22,13 @@ mod update {
 
     static SEMVER_REGEX: OnceCell<regex::Regex> = OnceCell::const_new();
     pub async fn check_for_update(Json(body): axum::extract::Json<CheckForUpdateDTO>) -> AppResult<impl IntoResponse> {
-        let (major, minor, patch) = parse_semver(body).await?;
+        let mandatory_version = (0, 0, 1);
+        let _recommended_version = (0, 0, 1);
+
+        let app_version = parse_semver(body).await?;
 
         #[allow(unused_comparisons)]
-        let is_acceptable_version = major >= 0 && minor >= 0 && patch >= 1;
+        let is_acceptable_version = compare_version(app_version, mandatory_version);
         if is_acceptable_version {
             let response = CheckForUpdateResponseDTO {
                 update_mandatory: false,
@@ -47,6 +50,10 @@ mod update {
         Ok((StatusCode::OK, Json(response)))
     }
 
+    fn compare_version(app_version: (u8, u8, u8), mandatory_version: (u8, u8, u8)) -> bool {
+        app_version.0 >= mandatory_version.0 && app_version.1 >= mandatory_version.1 && app_version.2 >= mandatory_version.2
+    }
+    
     async fn parse_semver(body: CheckForUpdateDTO) -> AppResult<(u8, u8, u8)> {
         let regex = SEMVER_REGEX
             .get_or_init(|| async { Regex::new("^(?<major>[0-9]+)\\.(?<minor>[0-9]+)\\.(?<patch>[0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?$").unwrap() })

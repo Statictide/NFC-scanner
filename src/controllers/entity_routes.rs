@@ -26,8 +26,9 @@ pub fn get_entity_routes() -> Router {
 
 async fn create_entity(Json(create_entity): Json<CreateEntityDTO>) -> AppResult<impl IntoResponse> {
     let id = entity_service::create_entity(create_entity.0).await?;
+    let entity = entity_service::get_entity_closure(id).await?;
 
-    Ok((StatusCode::CREATED, Json(id)))
+    Ok((StatusCode::CREATED, Json(entity)))
 }
 
 async fn get_entity(Path(id): Path<u32>) -> AppResult<impl IntoResponse> {
@@ -125,8 +126,8 @@ pub struct PatchEntityDTO(entity_service::PatchEntity);
 pub struct EntityClosureDTO {
     pub id: u32,
     pub user_id: u32,
-    pub tag_uid: Option<String>,
     pub name: String,
+    pub tag_uid: Option<String>,
     pub parent_id: Option<u32>,
     pub parent_name: Option<String>,
     pub children: Vec<EntityClosureDTO>,
