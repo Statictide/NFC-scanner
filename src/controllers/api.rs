@@ -22,64 +22,113 @@ mod update {
 
     static SEMVER_REGEX: OnceCell<regex::Regex> = OnceCell::const_new();
     pub async fn check_for_update(Json(body): axum::extract::Json<CheckForUpdateDTO>) -> AppResult<impl IntoResponse> {
-        let mandatory_version = (0, 0, 1);
-        let _recommended_version = (0, 0, 1);
+        let app_version: Semver = Semver::from_str(&body.version).map_err(|e| AppError::BadRequest(e))?;
+        let mandatory_version = Semver::new(0, 0, 1);
+        let recommended_version = Semver::new(0, 0, 2);
 
-        let app_version = parse_semver(body).await?;
+        // mandatory < recommended < latest
+        debug_assert!(mandatory_version < recommended_version);
 
-        #[allow(unused_comparisons)]
-        let is_acceptable_version = compare_version(app_version, mandatory_version);
-        if is_acceptable_version {
+        let update_not_recommended = recommended_version <= app_version;
+        if update_not_recommended {
+            return Ok((StatusCode::OK, Json(CheckForUpdateResponseDTO::empty())));
+        }
+
+        let update_recommended = mandatory_version <= app_version && app_version < recommended_version;
+        if update_recommended {
             let response = CheckForUpdateResponseDTO {
                 update_mandatory: false,
-                update_recommended: false,
-                title: None,
-                message: None,
+                update_recommended: true,
+                title: Some("Update available".to_string()),
+                message: Some("Assign To button has been fixed".to_string()),
                 update_url: None,
             };
             return Ok((StatusCode::OK, Json(response)));
         }
 
-        let response = CheckForUpdateResponseDTO {
-            update_mandatory: true,
-            update_recommended: true,
-            title: Some("Update available".to_string()),
-            message: Some("Breaking change".to_string()),
-            update_url: Some("https://example.com".to_string()),
-        };
-        Ok((StatusCode::OK, Json(response)))
+        let update_mandatory = app_version < mandatory_version;
+        if update_mandatory {
+            let response = CheckForUpdateResponseDTO {
+                update_mandatory: true,
+                update_recommended: true,
+                title: Some("Update mandatory".to_string()),
+                message: Some("Breaking change".to_string()),
+                update_url: None,
+            };
+            return Ok((StatusCode::OK, Json(response)));
+        }
+
+        Err(AppError::InternalServerError(anyhow::anyhow!("Unreachable code")))
     }
 
-    fn compare_version(app_version: (u8, u8, u8), mandatory_version: (u8, u8, u8)) -> bool {
-        app_version.0 >= mandatory_version.0 && app_version.1 >= mandatory_version.1 && app_version.2 >= mandatory_version.2
+    struct Semver {
+        major: u8,
+        minor: u8,
+        patch: u8,
     }
-    
-    async fn parse_semver(body: CheckForUpdateDTO) -> AppResult<(u8, u8, u8)> {
-        let regex = SEMVER_REGEX
-            .get_or_init(|| async { Regex::new("^(?<major>[0-9]+)\\.(?<minor>[0-9]+)\\.(?<patch>[0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?$").unwrap() })
-            .await;
-        let cap = regex
-            .captures(&body.version)
-            .ok_or(AppError::BadRequest("Version is not a valid semver string".to_string()))?;
-        let major = cap.name("major")
-            .ok_or(AppError::BadRequest("".to_string()))?
-            .as_str()
-            .parse::<u8>()
-            .map_err(|_| AppError::BadRequest("Major is not a valid number".to_string()))?;
-        let minor = cap.name("minor")
-            .ok_or(AppError::BadRequest("".to_string()))?
-            .as_str()
-            .parse::<u8>()
-            .map_err(|_| AppError::BadRequest("Minor is not a valid number".to_string()))?;
-        let patch = cap.name("patch")
-            .ok_or(AppError::BadRequest("".to_string()))?
-            .as_str()
-            .parse::<u8>()
-            .map_err(|_| AppError::BadRequest("Patch is not a valid number".to_string()))?;
 
-        Ok((major, minor, patch))
+    impl Semver {
+        fn new(major: u8, minor: u8, patch: u8) -> Self {
+            Self { major, minor, patch }
+        }
+
+        fn from_str(version: &str) -> Result<Self, String> {
+            let regex = Regex::new("^(?<major>[0-9]+)\\.(?<minor>[0-9]+)\\.(?<patch>[0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?$").unwrap();
+            let cap = regex.captures(version).ok_or("Version is not a valid semver string")?;
+            let major = cap
+                .name("major")
+                .ok_or("Version must be of semver format")?
+                .as_str()
+                .parse::<u8>()
+                .map_err(|_| "Major is not a valid number")?;
+            let minor = cap
+                .name("minor")
+                .ok_or("Version must be of semver format")?
+                .as_str()
+                .parse::<u8>()
+                .map_err(|_| "Minor is not a valid number")?;
+            let patch = cap
+                .name("patch")
+                .ok_or("Version must be of semver format")?
+                .as_str()
+                .parse::<u8>()
+                .map_err(|_| "Patch is not a valid number")?;
+
+            Ok(Self { major, minor, patch })
+        }
     }
-    
+
+    impl PartialEq for Semver {
+        fn eq(&self, other: &Self) -> bool {
+            self.major == other.major && self.minor == other.minor && self.patch == other.patch
+        }
+    }
+
+    impl PartialOrd for Semver {
+        fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+            // https://doc.rust-lang.org/std/cmp/enum.Ordering.html
+            if self.major > other.major {
+                return Some(std::cmp::Ordering::Greater);
+            } else if self.major < other.major {
+                return Some(std::cmp::Ordering::Less);
+            }
+
+            if self.minor > other.minor {
+                return Some(std::cmp::Ordering::Greater);
+            } else if self.minor < other.minor {
+                return Some(std::cmp::Ordering::Less);
+            }
+
+            if self.patch > other.patch {
+                return Some(std::cmp::Ordering::Greater);
+            } else if self.patch < other.patch {
+                return Some(std::cmp::Ordering::Less);
+            }
+
+            return Some(std::cmp::Ordering::Equal);
+        }
+    }
+
     #[allow(dead_code)]
     #[derive(serde::Deserialize)]
     pub struct CheckForUpdateDTO {
@@ -100,5 +149,17 @@ mod update {
         pub title: Option<String>,
         pub message: Option<String>,
         pub update_url: Option<String>,
+    }
+
+    impl CheckForUpdateResponseDTO {
+        pub fn empty() -> Self {
+            Self {
+                update_mandatory: false,
+                update_recommended: false,
+                title: None,
+                message: None,
+                update_url: None,
+            }
+        }
     }
 }
