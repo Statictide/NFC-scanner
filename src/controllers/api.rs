@@ -16,11 +16,9 @@ mod update {
     use axum::response::IntoResponse;
     use axum::Json;
     use regex::Regex;
-    use tokio::sync::OnceCell;
 
     use crate::controllers::errors::{AppError, AppResult};
 
-    static SEMVER_REGEX: OnceCell<regex::Regex> = OnceCell::const_new();
     pub async fn check_for_update(Json(body): axum::extract::Json<CheckForUpdateDTO>) -> AppResult<impl IntoResponse> {
         let app_version: Semver = Semver::from_str(&body.version).map_err(|e| AppError::BadRequest(e))?;
         let mandatory_version = Semver::new(0, 0, 1);
@@ -67,13 +65,15 @@ mod update {
         patch: u8,
     }
 
+    const SEMVER_REGEX: &str = "^(?<major>[0-9]+)\\.(?<minor>[0-9]+)\\.(?<patch>[0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?$";
     impl Semver {
         fn new(major: u8, minor: u8, patch: u8) -> Self {
             Self { major, minor, patch }
         }
 
         fn from_str(version: &str) -> Result<Self, String> {
-            let regex = Regex::new("^(?<major>[0-9]+)\\.(?<minor>[0-9]+)\\.(?<patch>[0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?$").unwrap();
+            let regex = Regex::new(SEMVER_REGEX).expect("Bad regex");
+
             let cap = regex.captures(version).ok_or("Version is not a valid semver string")?;
             let major = cap
                 .name("major")
