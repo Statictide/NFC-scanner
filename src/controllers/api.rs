@@ -9,15 +9,29 @@ pub async fn get_v0_api() -> Router {
         .nest("/entities", entity_routes::get_entity_routes())
         .nest("/users", user_routes::get_user_routes())
         .route("/check-for-update", post(update::check_for_update))
+        .route("/app-update/check", get(update::check_for_update))
+        .route("/app-update/download", get(update::download))
 }
 
 mod update {
-    use axum::http::StatusCode;
+    use axum::http::{header, StatusCode};
     use axum::response::IntoResponse;
     use axum::Json;
     use regex::Regex;
 
     use crate::controllers::errors::{AppError, AppResult};
+
+    // Open the file at data/app-debug.apk, read it and return it as a response
+    pub async fn download() -> AppResult<impl IntoResponse> {
+        let headers = [
+            (header::CONTENT_TYPE, "application/vnd.android.package-archive"),
+            (header::CONTENT_DISPOSITION, "attachment; filename=\"app-debug.apk\""),
+        ];
+        
+        let file = tokio::fs::read("/data/app-debug.apk").await.map_err(|e| AppError::InternalServerError(anyhow::anyhow!(e)))?;
+        // Set file name to app-debug.apk
+        Ok((StatusCode::OK, (headers, file)))
+    }
 
     pub async fn check_for_update(Json(body): axum::extract::Json<CheckForUpdateDTO>) -> AppResult<impl IntoResponse> {
         let app_version: Semver = Semver::from_str(&body.version).map_err(|e| AppError::BadRequest(e))?;
@@ -39,7 +53,7 @@ mod update {
                 update_recommended: true,
                 title: Some("Update available".to_string()),
                 message: Some("Assign To button has been fixed".to_string()),
-                update_url: None,
+                update_url: Some("https://nfc-scanner.fly.dev/api/v0/app-update/download".to_string()),
             };
             return Ok((StatusCode::OK, Json(response)));
         }
@@ -51,7 +65,7 @@ mod update {
                 update_recommended: true,
                 title: Some("Update mandatory".to_string()),
                 message: Some("Breaking change".to_string()),
-                update_url: None,
+                update_url: Some("https://nfc-scanner.fly.dev/api/v0/app-update/download".to_string()),
             };
             return Ok((StatusCode::OK, Json(response)));
         }
