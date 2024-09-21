@@ -5,7 +5,8 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - deploy/test
+      - main
+      #- deploy/test
 jobs:
   test: 
     uses: ./.github/workflows/test.yml
