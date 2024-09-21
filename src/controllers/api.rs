@@ -33,6 +33,7 @@ mod update {
         Ok((StatusCode::OK, (headers, file)))
     }
 
+    const URL: &str = "https://nfc-scanner.fly.dev/api/v0/app-update/download";
     pub async fn check_for_update(Json(body): axum::extract::Json<CheckForUpdateDTO>) -> AppResult<impl IntoResponse> {
         let app_version: Semver = Semver::from_str(&body.version).map_err(|e| AppError::BadRequest(e))?;
         let mandatory_version = Semver::new(0, 0, 1);
@@ -45,27 +46,28 @@ mod update {
         if update_not_recommended {
             return Ok((StatusCode::OK, Json(CheckForUpdateResponseDTO::empty())));
         }
-
+        
         let update_recommended = mandatory_version <= app_version && app_version < recommended_version;
         if update_recommended {
             let response = CheckForUpdateResponseDTO {
                 update_mandatory: false,
                 update_recommended: true,
-                title: Some("Update available".to_string()),
-                message: Some("Assign To button has been fixed".to_string()),
-                update_url: Some("https://nfc-scanner.fly.dev/api/v0/app-update/download".to_string()),
+                title: Some("Update available".into()),
+                message: Some("Assign To button has been fixed".into()),
+                update_url: Some(URL.into()),
             };
             return Ok((StatusCode::OK, Json(response)));
         }
 
         let update_mandatory = app_version < mandatory_version;
         if update_mandatory {
+            
             let response = CheckForUpdateResponseDTO {
                 update_mandatory: true,
                 update_recommended: true,
-                title: Some("Update mandatory".to_string()),
-                message: Some("Breaking change".to_string()),
-                update_url: Some("https://nfc-scanner.fly.dev/api/v0/app-update/download".to_string()),
+                title: Some("Update mandatory".into()),
+                message: Some("Breaking change".into()),
+                update_url: Some(URL.into()),
             };
             return Ok((StatusCode::OK, Json(response)));
         }
