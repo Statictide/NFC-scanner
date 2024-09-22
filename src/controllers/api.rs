@@ -37,7 +37,7 @@ mod update {
     pub async fn check_for_update(Json(body): axum::extract::Json<CheckForUpdateDTO>) -> AppResult<impl IntoResponse> {
         let app_version: Semver = Semver::from_str(&body.version).map_err(|e| AppError::BadRequest(e))?;
         let mandatory_version = Semver::new(0, 0, 1);
-        let recommended_version = Semver::new(0, 0, 2);
+        let recommended_version = Semver::new(0, 0, 3);
 
         // mandatory < recommended < latest
         debug_assert!(mandatory_version < recommended_version);
@@ -53,7 +53,7 @@ mod update {
                 update_mandatory: false,
                 update_recommended: true,
                 title: Some("Update available".into()),
-                message: Some("Assign To button has been fixed".into()),
+                message: Some("Select new parent button has been added".into()),
                 update_url: Some(URL.into()),
             };
             return Ok((StatusCode::OK, Json(response)));
