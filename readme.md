@@ -20,7 +20,7 @@ An entity can have a owner entity, which means that it is assigned or located th
 ## Update apk file on server
 remove old apk
 ```
-fly ssh console -C rm "../data/app-debug.apk"
+fly ssh console -C "rm ../data/app-debug.apk"
 ```
 
 put new apk

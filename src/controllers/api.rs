@@ -37,7 +37,7 @@ mod update {
     pub async fn check_for_update(Json(body): axum::extract::Json<CheckForUpdateDTO>) -> AppResult<impl IntoResponse> {
         let app_version: Semver = Semver::from_str(&body.version).map_err(|e| AppError::BadRequest(e))?;
         let mandatory_version = Semver::new(0, 0, 1);
-        let recommended_version = Semver::new(0, 0, 3);
+        let recommended_version = Semver::new(0, 0, 4);
 
         // mandatory < recommended < latest
         debug_assert!(mandatory_version < recommended_version);
