@@ -1,11 +1,11 @@
 meta {
-  name: index
+  name: logs
   type: http
   seq: 1
 }
 
 get {
-  url: {{BASE_URL}}
+  url: {{BASE_URL}}{{API_PATH}}/audit-logs
   body: none
   auth: none
 }

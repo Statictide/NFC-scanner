@@ -8,6 +8,6 @@
   ],
   "presets": {
     "requestType": "http",
-    "requestUrl": "{{BASE_URL}}/api/v1"
+    "requestUrl": "{{BASE_URL}}{{API_PATH}}"
   }
 }
