@@ -5,7 +5,7 @@
 Make server visible to your android device
 [Download ADB bridge](https://developer.android.com/tools/releases/platform-tools)
 ```
-./tools/adb.exe reverse tcp:8080 tcp:8080
+./tools/platform-tools/adb.exe reverse tcp:8080 tcp:8080
 ```
 
 # Database
@@ -30,3 +30,9 @@ cd data
 put data/app-debug.apk
 
 ```
+
+
+# Todo
+Lav audit log om til en udlånings log.
+Navn. Old Parent, New parent, Time stamp.
+Vis som table

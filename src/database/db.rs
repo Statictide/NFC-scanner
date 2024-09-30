@@ -3,7 +3,7 @@ use std::{env, str::FromStr};
 use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
 use tokio::sync::OnceCell;
 
-use crate::services::user_service;
+use crate::{database::dao::audit_log_dao::create_parent_history_entry, services::user_service};
 
 pub type Pool = sqlx::SqlitePool;
 static POOL: OnceCell<Pool> = OnceCell::const_new();
@@ -19,8 +19,7 @@ pub async fn pool() -> &'static Pool {
  * Initialize the database pool
  */
 pub async fn init_database_pool() {
-    let database_url = std::env::var("DATABASE_URL").expect("Environment variable  not found: DATABASE_URL");
-    tracing::info!("Database URL: {}", database_url);
+    let database_url = std::env::var("DATABASE_URL").expect("Environment variable not found: DATABASE_URL");
 
     let conn = SqliteConnectOptions::from_str(&database_url)
         .expect("Failed to parse DATABASE_URL")
@@ -99,6 +98,15 @@ async fn add_test_data() {
         name: "Main entity 2".to_string(),
         parent_id: None,
     })
+    .await
+    .unwrap();
+
+    let _ = create_parent_history_entry(
+        1,
+        "Glock".to_string(),
+        Some("BankBox".to_string()),
+        Some("Lasse".to_string()),
+    )
     .await
     .unwrap();
 }

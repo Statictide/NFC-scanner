@@ -8,12 +8,12 @@ const USER_ID: u32 = 1;
 
 pub async fn create_entity(entity: CreateEntity) -> anyhow::Result<u32> {
     let entity_table = entity_dao::create_entity(USER_ID, entity.tag_uid, entity.name, entity.parent_id).await?;
-    Ok(entity_table.id)
+    Ok(entity_table.entity_id)
 }
 
 pub async fn get_entity_closure_by_tag_uid(tag_uid: String) -> ServiceResult<EntityClosure> {
     let entity = entity_dao::get_entity_by_tag_uid(tag_uid, USER_ID).await?;
-    let entity_closure = get_entity_closure(entity.id).await?;
+    let entity_closure = get_entity_closure(entity.entity_id).await?;
     Ok(entity_closure)
 }
 
@@ -117,7 +117,7 @@ pub struct Entity {
 impl Entity {
     fn from_rich_entity(entity: entity_dao::EntityRich) -> Self {
         Self {
-            id: entity.id,
+            id: entity.entity_id,
             user_id: entity.user_id,
             tag_uid: entity.tag_uid,
             name: entity.name,
@@ -141,7 +141,7 @@ pub struct EntityClosure {
 impl EntityClosure {
     fn from_entity_closure(e: entity_dao::EntityClosure) -> Self {
         Self {
-            id: e.id,
+            id: e.entity_id,
             user_id: e.user_id,
             tag_uid: e.tag_uid,
             name: e.name,

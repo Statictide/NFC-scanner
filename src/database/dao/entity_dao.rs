@@ -61,7 +61,7 @@ pub async fn get_entity_closures(user_id: u32) -> DatabaseResult<Vec<EntityClosu
     // Create a lookup table for the entities
     let entity_map = entities
         .into_iter()
-        .map(|entity| (entity.id, entity))
+        .map(|entity| (entity.entity_id, entity))
         .collect::<HashMap<u32, EntityRich>>();
 
     // Get the main entities (entities without a parent)
@@ -77,7 +77,7 @@ pub async fn get_entity_closures(user_id: u32) -> DatabaseResult<Vec<EntityClosu
         .map(|entity| {
             let children = get_children_recursively(&entity, &entity_map);
             EntityClosure {
-                id: entity.id,
+                entity_id: entity.entity_id,
                 user_id: entity.user_id,
                 tag_uid: entity.tag_uid,
                 name: entity.name,
@@ -98,7 +98,7 @@ fn get_children_recursively(entity: &EntityRich, entity_map: &HashMap<u32, Entit
             let Some(parent_id) = child.parent_id else {
                 return false;
             };
-            return parent_id == entity.id;
+            return parent_id == entity.entity_id;
         })
         .cloned()
         .collect::<Vec<_>>();
@@ -108,7 +108,7 @@ fn get_children_recursively(entity: &EntityRich, entity_map: &HashMap<u32, Entit
         .map(|child| {
             let children = get_children_recursively(&child, entity_map);
             EntityClosure {
-                id: child.id,
+                entity_id: child.entity_id,
                 user_id: child.user_id,
                 tag_uid: child.tag_uid,
                 name: child.name,
@@ -178,7 +178,8 @@ pub async fn delete_entity(id: u32, user_id: u32) -> DatabaseResult<()> {
 
 #[derive(sqlx::FromRow, Clone, Debug)]
 pub struct EntityTable {
-    pub id: u32,
+    #[sqlx(rename = "id")]
+    pub entity_id: u32,
     #[allow(dead_code)]
     pub user_id: u32,
     pub tag_uid: Option<String>,
@@ -188,7 +189,8 @@ pub struct EntityTable {
 
 #[derive(sqlx::FromRow, Clone, Debug)]
 pub struct EntityRich {
-    pub id: u32,
+    #[sqlx(rename = "id")]
+    pub entity_id: u32,
     pub user_id: u32,
     pub tag_uid: Option<String>,
     pub name: String,
@@ -198,7 +200,7 @@ pub struct EntityRich {
 
 #[derive(Debug)]
 pub struct EntityClosure {
-    pub id: u32,
+    pub entity_id: u32,
     pub user_id: u32,
     pub tag_uid: Option<String>,
     pub name: String,

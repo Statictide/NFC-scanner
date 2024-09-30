@@ -1,4 +1,4 @@
-use crate::services::{entity_service, errors::ServiceError};
+use crate::services::{audit_log_service, entity_service, errors::ServiceError};
 
 use axum::{
     extract::{Path, Query},
@@ -106,13 +106,37 @@ async fn update_entity(
 }
 
 async fn patch_entity(Path(id): Path<u32>, Json(patch_entity): Json<PatchEntityDTO>) -> AppResult<impl IntoResponse> {
+    // Get info about the old and new parent, to be logged on success
+    let mut parent_change = None;
+    let entity = entity_service::get_entity_closure(id).await?;
+    if let Some(maybe_parent_id) = patch_entity.0.parent_id.clone() {
+        let new_parent_name = if let Some(parent_id) = maybe_parent_id.value {
+            let parent = entity_service::get_entity_closure(parent_id).await?;
+            Some(parent.name)
+        } else {
+            None
+        };
+
+        let entity_name = entity.name;
+        let old_parent_name = entity.parent_name;
+        parent_change = Some((entity_name, old_parent_name, new_parent_name));
+    };
+
+    // Act
     let entity_closure = entity_service::patch_entity(id, patch_entity.0).await?;
 
+    // Log
+    if let Some((entity_name, old_parent_name, new_parent_name)) = parent_change {
+        audit_log_service::add_parent_history_entry(entity_name, old_parent_name, new_parent_name).await?;
+    }
+
+    // Return
     Ok((StatusCode::OK, Json(entity_closure)))
 }
 
 async fn delete_entity(Path(id): Path<u32>) -> AppResult<impl IntoResponse> {
     entity_service::delete_entity(id).await?;
+
     return Ok(StatusCode::NO_CONTENT);
 }
 

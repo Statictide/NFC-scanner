@@ -4,18 +4,43 @@ use crate::services::audit_log_service;
 
 use super::errors::AppResult;
 
-pub fn get_audit_log_routes() -> Router {
-    Router::new().route("/", get(get_logs))
+pub fn get_history_routes() -> Router {
+    Router::new().route("/", get(get_history))
 }
 
-async fn get_logs() -> AppResult<impl IntoResponse> {
-    let logs = audit_log_service::get_logs(1).await?;
+async fn get_history() -> AppResult<impl IntoResponse> {
+    let logs = audit_log_service::get_parent_history(1).await?;
+    let parent_history = logs
+        .into_iter()
+        .map(ParentHistoryEntry::from_history)
+        .collect::<Vec<_>>();
 
-    return Ok((StatusCode::OK, Json(logs)).into_response());
+    let res: AuditLogs = AuditLogs { parent_history };
+    return Ok((StatusCode::OK, Json(res)));
 }
 
 #[derive(serde::Serialize)]
 struct AuditLogs {
-    logs: Vec<audit_log_service::AuditLogEntry>,
+    parent_history: Vec<ParentHistoryEntry>,
 }
 
+#[derive(serde::Serialize)]
+pub struct ParentHistoryEntry {
+    //parent_history_id: u32,
+    entity_name: String,
+    old_parent_name: Option<String>,
+    new_parent_name: Option<String>,
+    created_at: chrono::NaiveDateTime,
+}
+
+impl ParentHistoryEntry {
+    fn from_history(entry: audit_log_service::HistoryEntry) -> Self {
+        Self {
+            //parent_history_id: entry.parent_history_id,
+            entity_name: entry.entity_name,
+            old_parent_name: entry.old_parent_name,
+            new_parent_name: entry.new_parent_name,
+            created_at: entry.created_at,
+        }
+    }
+}

@@ -19,6 +19,8 @@ async fn main() {
         .with_max_level(Level::INFO)
         .init();
 
+    tracing::info!("Starting");
+
     // Load .env file
     dotenvy::dotenv().ok();
 
@@ -49,7 +51,7 @@ async fn main() {
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
 
-    println!("Listening on {addr}. See http://localhost:{}", addr.port());
+    tracing::info!("Listening on {addr}. See http://localhost:{}", addr.port());
     axum::serve(listener, app).await.unwrap();
 }
 
