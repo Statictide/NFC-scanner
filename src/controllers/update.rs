@@ -23,7 +23,7 @@ const URL: &str = "https://nfc-scanner.fly.dev/api/v0/app-update/download";
 pub async fn check_for_update(Json(body): axum::extract::Json<CheckForUpdateDTO>) -> AppResult<impl IntoResponse> {
     let app_version: Semver = Semver::from_str(&body.version).map_err(|e| AppError::BadRequest(e))?;
     let mandatory_version = Semver::new(0, 0, 1);
-    let recommended_version = Semver::new(0, 0, 4);
+    let recommended_version = Semver::new(0, 0, 5);
 
     // mandatory < recommended < latest
     debug_assert!(mandatory_version < recommended_version);
